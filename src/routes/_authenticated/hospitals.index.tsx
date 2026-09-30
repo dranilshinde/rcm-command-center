@@ -46,7 +46,7 @@ function Hospitals() {
       <PageHeader
         title="Hospitals"
         description="Only hospitals you have been given access to are listed."
-        actions={canCreate ? <NewHospitalDialog /> : null}
+        actions={canCreate ? <div className="flex gap-2"><Button size="sm" variant="outline" asChild><Link to="/onboarding">Guided onboarding</Link></Button><NewHospitalDialog /></div> : null}
       />
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
