@@ -98,10 +98,10 @@ function HospitalDetail() {
                     data: {
                       organization_id: hospital.organization_id,
                       hospital_id: hospital.id,
-                      name: values.name,
-                      code: values.code,
-                      city: values.city,
-                      state: values.state,
+                      name: (values["name"] ?? ""),
+                      code: (values["code"] ?? ""),
+                      city: (values["city"] ?? ""),
+                      state: (values["state"] ?? ""),
                     },
                   });
                 }}
@@ -143,10 +143,10 @@ function HospitalDetail() {
                     data: {
                       organization_id: hospital.organization_id,
                       hospital_id: hospital.id,
-                      branch_id: values.branch_id || null,
-                      name: values.name,
-                      code: values.code,
-                      dept_type: values.dept_type || "clinical",
+                      branch_id: (values["branch_id"] ?? "") || null,
+                      name: (values["name"] ?? ""),
+                      code: (values["code"] ?? ""),
+                      dept_type: (values["dept_type"] ?? "") || "clinical",
                     },
                   });
                 }}
@@ -185,10 +185,10 @@ function HospitalDetail() {
                     data: {
                       organization_id: hospital.organization_id,
                       hospital_id: hospital.id,
-                      branch_id: values.branch_id || null,
-                      department_id: values.department_id || null,
-                      name: values.name,
-                      code: values.code,
+                      branch_id: (values["branch_id"] ?? "") || null,
+                      department_id: (values["department_id"] ?? "") || null,
+                      name: (values["name"] ?? ""),
+                      code: (values["code"] ?? ""),
                     },
                   });
                 }}
@@ -287,7 +287,7 @@ function CreateDialog({
   const qc = useQueryClient();
 
   async function submit() {
-    if (!values.name || !values.code) {
+    if (!(values["name"] ?? "") || !(values["code"] ?? "")) {
       toast.error("Name and code are required.");
       return;
     }

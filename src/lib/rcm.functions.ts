@@ -10,7 +10,7 @@ export const bootstrapSession = createServerFn({ method: "POST" })
     const email = (context.claims as { email?: string } | null)?.email ?? null;
     const { error } = await supabaseAdmin.rpc("bootstrap_user", {
       _user_id: context.userId,
-      _email: email,
+      _email: email ?? "",
     });
     if (error) throw new Error("We could not finish setting up your account.");
     return { ok: true };

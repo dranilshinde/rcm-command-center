@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import logo from "@/assets/rcm-buddy-logo.png.asset.json";
 import { Activity, Building2, ShieldCheck, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -25,9 +26,7 @@ function Landing() {
     <div className="min-h-screen bg-sidebar text-sidebar-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
-            RB
-          </span>
+          <img src={logo.url} alt="RCM Buddy" className="h-14 w-14 object-contain" />
           <span className="text-sm font-semibold text-sidebar-accent-foreground">RCM Buddy</span>
         </div>
         <Link

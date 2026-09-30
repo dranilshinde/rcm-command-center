@@ -31,7 +31,7 @@ function Hospitals() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
-  const params = { search: search || undefined, status, page };
+  const params = search ? { search, status, page } : { status, page };
   const { data, isFetching } = useQuery({ ...hospitalsQuery(params), placeholderData: (p) => p });
   const { data: session } = useSuspenseQuery(sessionQuery);
   const canCreate = session.permissions.includes("hospitals.CREATE") || session.isSuperAdmin;
