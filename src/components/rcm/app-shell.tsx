@@ -40,6 +40,7 @@ const NAV: NavSection[] = [
     items: [
       { label: "Hospital Groups", to: "/hospital-groups", icon: Network },
       { label: "Hospitals", to: "/hospitals", icon: Building2 },
+      { label: "Onboarding", to: "/onboarding", icon: ClipboardList },
       { label: "Payers & TPAs", to: "/payers", icon: LayoutGrid },
       { label: "Users & Teams", to: "/users", icon: Users },
     ],
