@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import logo from "@/assets/rcm-buddy-logo.png.asset.json";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,9 +74,7 @@ function AuthPage() {
     <div className="flex min-h-screen">
       <div className="hidden flex-1 flex-col justify-between bg-sidebar p-10 lg:flex">
         <Link to="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
-            RB
-          </span>
+          <img src={logo.url} alt="RCM Buddy" className="h-10 w-10 object-contain" />
           <span className="text-sm font-semibold text-sidebar-accent-foreground">RCM Buddy</span>
         </Link>
         <div>
