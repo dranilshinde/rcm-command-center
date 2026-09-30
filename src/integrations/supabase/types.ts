@@ -1372,7 +1372,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      bootstrap_current_user: { Args: { _full_name?: string }; Returns: string }
+      bootstrap_user: {
+        Args: { _email: string; _full_name?: string; _user_id: string }
+        Returns: string
+      }
       can_access_branch: {
         Args: { _branch_id: string; _user_id: string }
         Returns: boolean
