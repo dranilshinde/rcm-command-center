@@ -12,9 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
+import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedPayersRouteImport } from './routes/_authenticated/payers'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedHospitalsIndexRouteImport } from './routes/_authenticated/hospitals.index'
 import { Route as AuthenticatedHospitalsHospitalIdRouteImport } from './routes/_authenticated/hospitals.$hospitalId'
@@ -33,6 +38,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,9 +54,30 @@ const AuthenticatedHospitalGroupsRoute =
     path: '/hospital-groups',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
+  id: '/master-data',
+  path: '/master-data',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPayersRoute = AuthenticatedPayersRouteImport.update({
+  id: '/payers',
+  path: '/payers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
@@ -70,9 +101,14 @@ const AuthenticatedHospitalsHospitalIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/master-data': typeof AuthenticatedMasterDataRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/payers': typeof AuthenticatedPayersRoute
   '/roles': typeof AuthenticatedRolesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/hospitals/': typeof AuthenticatedHospitalsIndexRoute
@@ -80,9 +116,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/master-data': typeof AuthenticatedMasterDataRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/payers': typeof AuthenticatedPayersRoute
   '/roles': typeof AuthenticatedRolesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/hospitals': typeof AuthenticatedHospitalsIndexRoute
@@ -92,9 +133,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/payers': typeof AuthenticatedPayersRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/_authenticated/hospitals/': typeof AuthenticatedHospitalsIndexRoute
@@ -104,9 +150,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/audit'
     | '/dashboard'
     | '/hospital-groups'
+    | '/master-data'
+    | '/notifications'
+    | '/payers'
     | '/roles'
+    | '/settings'
     | '/users'
     | '/hospitals/$hospitalId'
     | '/hospitals/'
@@ -114,9 +165,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/audit'
     | '/dashboard'
     | '/hospital-groups'
+    | '/master-data'
+    | '/notifications'
+    | '/payers'
     | '/roles'
+    | '/settings'
     | '/users'
     | '/hospitals/$hospitalId'
     | '/hospitals'
@@ -125,9 +181,14 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/audit'
     | '/_authenticated/dashboard'
     | '/_authenticated/hospital-groups'
+    | '/_authenticated/master-data'
+    | '/_authenticated/notifications'
+    | '/_authenticated/payers'
     | '/_authenticated/roles'
+    | '/_authenticated/settings'
     | '/_authenticated/users'
     | '/_authenticated/hospitals/$hospitalId'
     | '/_authenticated/hospitals/'
@@ -162,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -176,11 +244,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHospitalGroupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/master-data': {
+      id: '/_authenticated/master-data'
+      path: '/master-data'
+      fullPath: '/master-data'
+      preLoaderRoute: typeof AuthenticatedMasterDataRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payers': {
+      id: '/_authenticated/payers'
+      path: '/payers'
+      fullPath: '/payers'
+      preLoaderRoute: typeof AuthenticatedPayersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/roles': {
       id: '/_authenticated/roles'
       path: '/roles'
       fullPath: '/roles'
       preLoaderRoute: typeof AuthenticatedRolesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users': {
@@ -208,18 +304,28 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
+  AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedPayersRoute: typeof AuthenticatedPayersRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedHospitalsHospitalIdRoute: typeof AuthenticatedHospitalsHospitalIdRoute
   AuthenticatedHospitalsIndexRoute: typeof AuthenticatedHospitalsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
+  AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedPayersRoute: AuthenticatedPayersRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedHospitalsHospitalIdRoute: AuthenticatedHospitalsHospitalIdRoute,
   AuthenticatedHospitalsIndexRoute: AuthenticatedHospitalsIndexRoute,
