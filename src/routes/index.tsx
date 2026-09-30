@@ -26,7 +26,7 @@ function Landing() {
     <div className="min-h-screen bg-sidebar text-sidebar-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
-          <img src={logo.url} alt="RCM Buddy" className="h-10 w-10 object-contain" />
+          <img src={logo.url} alt="RCM Buddy" className="h-14 w-14 object-contain" />
           <span className="text-sm font-semibold text-sidebar-accent-foreground">RCM Buddy</span>
         </div>
         <Link

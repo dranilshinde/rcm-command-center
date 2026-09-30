@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-          <img src={logo.url} alt="RCM Buddy" className="h-9 w-9 object-contain" />
+          <img src={logo.url} alt="RCM Buddy" className="h-11 w-11 object-contain" />
           <div className="leading-tight">
             <p className="text-[13px] font-semibold text-sidebar-accent-foreground">RCM Buddy</p>
             <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">Revenue Cycle OS</p>

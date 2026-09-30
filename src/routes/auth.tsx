@@ -74,7 +74,7 @@ function AuthPage() {
     <div className="flex min-h-screen">
       <div className="hidden flex-1 flex-col justify-between bg-sidebar p-10 lg:flex">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo.url} alt="RCM Buddy" className="h-10 w-10 object-contain" />
+          <img src={logo.url} alt="RCM Buddy" className="h-14 w-14 object-contain" />
           <span className="text-sm font-semibold text-sidebar-accent-foreground">RCM Buddy</span>
         </Link>
         <div>
