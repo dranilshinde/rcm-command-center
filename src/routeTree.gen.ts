@@ -14,7 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
+import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedHospitalsIndexRouteImport } from './routes/_authenticated/hospitals.index'
+import { Route as AuthenticatedHospitalsHospitalIdRouteImport } from './routes/_authenticated/hospitals.$hospitalId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,10 +44,26 @@ const AuthenticatedHospitalGroupsRoute =
     path: '/hospital-groups',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHospitalsIndexRoute =
   AuthenticatedHospitalsIndexRouteImport.update({
     id: '/hospitals/',
     path: '/hospitals/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHospitalsHospitalIdRoute =
+  AuthenticatedHospitalsHospitalIdRouteImport.update({
+    id: '/hospitals/$hospitalId',
+    path: '/hospitals/$hospitalId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -53,6 +72,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/roles': typeof AuthenticatedRolesRoute
+  '/users': typeof AuthenticatedUsersRoute
+  '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/hospitals/': typeof AuthenticatedHospitalsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -60,6 +82,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/roles': typeof AuthenticatedRolesRoute
+  '/users': typeof AuthenticatedUsersRoute
+  '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/hospitals': typeof AuthenticatedHospitalsIndexRoute
 }
 export interface FileRoutesById {
@@ -69,13 +94,32 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/_authenticated/roles': typeof AuthenticatedRolesRoute
+  '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/_authenticated/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/_authenticated/hospitals/': typeof AuthenticatedHospitalsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/hospital-groups' | '/hospitals/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/hospital-groups'
+    | '/roles'
+    | '/users'
+    | '/hospitals/$hospitalId'
+    | '/hospitals/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/hospital-groups' | '/hospitals'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/hospital-groups'
+    | '/roles'
+    | '/users'
+    | '/hospitals/$hospitalId'
+    | '/hospitals'
   id:
     | '__root__'
     | '/'
@@ -83,6 +127,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/_authenticated/hospital-groups'
+    | '/_authenticated/roles'
+    | '/_authenticated/users'
+    | '/_authenticated/hospitals/$hospitalId'
     | '/_authenticated/hospitals/'
   fileRoutesById: FileRoutesById
 }
@@ -129,11 +176,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHospitalGroupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/roles': {
+      id: '/_authenticated/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AuthenticatedRolesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hospitals/': {
       id: '/_authenticated/hospitals/'
       path: '/hospitals'
       fullPath: '/hospitals/'
       preLoaderRoute: typeof AuthenticatedHospitalsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hospitals/$hospitalId': {
+      id: '/_authenticated/hospitals/$hospitalId'
+      path: '/hospitals/$hospitalId'
+      fullPath: '/hospitals/$hospitalId'
+      preLoaderRoute: typeof AuthenticatedHospitalsHospitalIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -142,12 +210,18 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
+  AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
+  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
+  AuthenticatedHospitalsHospitalIdRoute: typeof AuthenticatedHospitalsHospitalIdRoute
   AuthenticatedHospitalsIndexRoute: typeof AuthenticatedHospitalsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
+  AuthenticatedRolesRoute: AuthenticatedRolesRoute,
+  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
+  AuthenticatedHospitalsHospitalIdRoute: AuthenticatedHospitalsHospitalIdRoute,
   AuthenticatedHospitalsIndexRoute: AuthenticatedHospitalsIndexRoute,
 }
 
