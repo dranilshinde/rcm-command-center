@@ -38,7 +38,7 @@ function MasterData() {
   const list = data.lists.find((l) => l.id === listId);
 
   async function add() {
-    if (!code || !label) return toast.error("Code and label are required.");
+    if (!code || !label) { toast.error("Code and label are required."); return; }
     try {
       await create({ data: { listId, code, label, sortOrder: items.length + 1 } });
       setCode(""); setLabel("");

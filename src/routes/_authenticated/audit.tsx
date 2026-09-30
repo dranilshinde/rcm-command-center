@@ -24,7 +24,7 @@ const MODULES = ["hospitals", "hospital_groups", "branches", "departments", "tea
 function Audit() {
   const [page, setPage] = useState(1);
   const [module, setModule] = useState("all");
-  const params = { page, module: module === "all" ? undefined : module };
+  const params = module === "all" ? { page } : { page, module };
   const { data } = useQuery({ ...auditQuery(params), placeholderData: (p) => p });
   const rows = data?.rows ?? [];
   const pages = Math.max(1, Math.ceil((data?.total ?? 0) / (data?.pageSize ?? 50)));

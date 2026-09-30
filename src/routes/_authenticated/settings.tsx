@@ -27,7 +27,7 @@ function SettingsPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const p = session.profile;
   const [form, setForm] = useState({
-    full_name: p?.full_name ?? "", phone: p?.phone ?? "", job_title: p?.job_title ?? "", availability: p?.availability ?? "available",
+    full_name: p?.full_name ?? "", phone: "", job_title: p?.job_title ?? "", availability: p?.availability ?? "available",
   });
   const [busy, setBusy] = useState(false);
   const save = useServerFn(updateOwnProfile);
@@ -45,7 +45,6 @@ function SettingsPage() {
       <PageHeader title="Settings" description={`Signed in as ${p?.email ?? ""}. Roles: ${session.roles.join(", ") || "none"}.`} />
       <div className="space-y-3 rounded-lg border border-border bg-card p-4">
         <div className="space-y-1.5"><Label>Full name</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
-        <div className="space-y-1.5"><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
         <div className="space-y-1.5"><Label>Job title</Label><Input value={form.job_title} onChange={(e) => setForm({ ...form, job_title: e.target.value })} /></div>
         <div className="space-y-1.5"><Label>Availability</Label>
           <Select value={form.availability} onValueChange={(v) => setForm({ ...form, availability: v })}>
