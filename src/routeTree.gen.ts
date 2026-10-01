@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
+import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -53,6 +54,12 @@ const AuthenticatedHospitalGroupsRoute =
   AuthenticatedHospitalGroupsRouteImport.update({
     id: '/hospital-groups',
     path: '/hospital-groups',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInvitationsRoute =
+  AuthenticatedInvitationsRouteImport.update({
+    id: '/invitations',
+    path: '/invitations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/invitations': typeof AuthenticatedInvitationsRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -144,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
+  '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/dashboard'
     | '/hospital-groups'
+    | '/invitations'
     | '/master-data'
     | '/notifications'
     | '/onboarding'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/dashboard'
     | '/hospital-groups'
+    | '/invitations'
     | '/master-data'
     | '/notifications'
     | '/onboarding'
@@ -195,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/dashboard'
     | '/_authenticated/hospital-groups'
+    | '/_authenticated/invitations'
     | '/_authenticated/master-data'
     | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/hospital-groups'
       fullPath: '/hospital-groups'
       preLoaderRoute: typeof AuthenticatedHospitalGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/invitations': {
+      id: '/_authenticated/invitations'
+      path: '/invitations'
+      fullPath: '/invitations'
+      preLoaderRoute: typeof AuthenticatedInvitationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/master-data': {
@@ -326,6 +346,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
+  AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -341,6 +362,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
+  AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
