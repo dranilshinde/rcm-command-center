@@ -24,3 +24,12 @@ export const claimStatsQuery = queryOptions({ queryKey: ["claim-stats"], queryFn
 export const importJobsQuery = queryOptions({ queryKey: ["import-jobs"], queryFn: () => listImportJobs() });
 export const assigneesQuery = (hospitalId?: string) =>
   queryOptions({ queryKey: ["assignees", hospitalId ?? "all"], queryFn: () => listAssignees({ data: hospitalId ? { hospitalId } : {} }), staleTime: 60_000 });
+
+import { getFollowupCenter, listEscalations, listQueries, listRules } from "./followups.functions";
+export const queriesQuery = (p: { view: string; page?: number }) =>
+  queryOptions({ queryKey: ["queries", p], queryFn: () => listQueries({ data: p }) });
+export const followupCenterQuery = (p: { page?: number }) =>
+  queryOptions({ queryKey: ["followups", p], queryFn: () => getFollowupCenter({ data: p }) });
+export const escalationsQuery = (p: { status: string; page?: number }) =>
+  queryOptions({ queryKey: ["escalations", p], queryFn: () => listEscalations({ data: p }) });
+export const rulesQuery = queryOptions({ queryKey: ["rules"], queryFn: () => listRules() });

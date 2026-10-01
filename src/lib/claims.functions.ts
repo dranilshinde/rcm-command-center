@@ -545,7 +545,7 @@ export const listTasks = createServerFn({ method: "GET" })
     const now = new Date();
     const endOfDay = new Date(now); endOfDay.setHours(23, 59, 59, 999);
     let q = context.supabase.from("tasks")
-      .select("id, title, description, status, priority, task_type, due_at, amount_at_stake, claim_id, hospital_id, assigned_to, hospitals(name), claims(claim_code, status), profiles:assigned_to(full_name)", { count: "exact" })
+      .select("id, title, description, status, priority, task_type, due_at, amount_at_stake, escalation_level, claim_id, hospital_id, assigned_to, hospitals(name), claims(claim_code, status), profiles:assigned_to(full_name)", { count: "exact" })
       .order("due_at", { ascending: true, nullsFirst: false })
       .range((page - 1) * PAGE, page * PAGE - 1);
     if (data.view === "completed") q = q.in("status", ["completed", "cancelled"]);
@@ -558,6 +558,8 @@ export const listTasks = createServerFn({ method: "GET" })
       case "high_priority": q = q.in("priority", ["high", "urgent"]); break;
       case "high_value": q = q.gte("amount_at_stake", 100000); break;
       case "query": q = q.eq("task_type", "query"); break;
+      case "followup": q = q.in("task_type", ["payer_followup", "commitment_missed", "payment_followup"]); break;
+      case "preauth": q = q.eq("task_type", "preauth"); break;
       case "escalated": q = q.eq("status", "escalated"); break;
     }
     const { data: rows, count, error } = await q;
