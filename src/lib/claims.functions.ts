@@ -38,7 +38,7 @@ async function refreshReadiness(sb: Sb, claimId: string) {
     .eq("id", claimId)
     .maybeSingle();
   if (!c) return;
-  const a = c.admissions as Record<string, string | null> | null;
+  const a = c.admissions as unknown as { policy_number: string | null; member_id: string | null; ip_number: string | null; discharge_date: string | null; diagnosis: string | null; treatment: string | null; insurer_id: string | null; tpa_id: string | null } | null;
   const { count } = await sb.from("preauths").select("id", { count: "exact", head: true })
     .eq("admission_id", c.admission_id).eq("status", "approved");
   const r = computeReadiness({
@@ -246,7 +246,7 @@ export const decidePreauth = createServerFn({ method: "POST" })
     const sb = context.supabase;
     if (data.status === "approved" && !data.approved_amount) throw new Error("Enter the approved amount.");
     const { data: p, error } = await sb.from("preauths").update({
-      status: data.status, approved_amount: data.status === "approved" ? data.approved_amount : null,
+      status: data.status, approved_amount: data.status === "approved" ? (data.approved_amount ?? null) : null,
       remarks: data.remarks || null, decided_at: ["approved", "rejected"].includes(data.status) ? new Date().toISOString() : null,
       updated_by: context.userId,
     }).eq("id", data.preauthId).select("admission_id").single();
@@ -329,13 +329,13 @@ export const runClaimAction = createServerFn({ method: "POST" })
       throw new Error("Please describe the query or denial reason.");
     if (data.action === "approve" && !data.approved_amount) throw new Error("Enter the approved amount.");
 
-    const patch: Record<string, unknown> = { status: def.to, last_status_at: new Date().toISOString(), updated_by: context.userId };
+    const patch: Database["public"]["Tables"]["claims"]["Update"] = { status: def.to, last_status_at: new Date().toISOString(), updated_by: context.userId };
     if (data.action === "submit") {
       patch.document_submitted_at = new Date().toISOString().slice(0, 10);
       if (data.external_claim_no) patch.external_claim_no = data.external_claim_no;
     }
-    if (data.action === "approve") patch.approved_amount = data.approved_amount;
-    if (data.action === "deny" || data.action === "record_query") patch.insurer_comments = data.note;
+    if (data.action === "approve") patch.approved_amount = data.approved_amount ?? 0;
+    if (data.action === "deny" || data.action === "record_query") patch.insurer_comments = data.note ?? null;
     const { error } = await sb.from("claims").update(patch).eq("id", c.id);
     if (error) throw new Error(friendly(error.message, "claim"));
 
@@ -537,7 +537,7 @@ export const updateTasks = createServerFn({ method: "POST" })
     assignTo: z.string().uuid().nullable().optional(),
   }).parse(d))
   .handler(async ({ context, data }) => {
-    const patch: Record<string, unknown> = { updated_by: context.userId };
+    const patch: Database["public"]["Tables"]["tasks"]["Update"] = { updated_by: context.userId };
     if (data.status) {
       patch.status = data.status;
       patch.completed_at = data.status === "completed" ? new Date().toISOString() : null;
@@ -665,7 +665,7 @@ export const importClaims = createServerFn({ method: "POST" })
 
     const name = await actorName(sb, context.userId);
     let created = 0, updated = 0;
-    const jobRows: { job_id: string; organization_id: string; row_number: number; status: string; errors: unknown; claim_id: string | null }[] = [];
+    const jobRows: { job_id: string; organization_id: string; row_number: number; status: string; errors: string[]; claim_id: string | null }[] = [];
 
     for (const { r, hospital, existingId, mapped } of plans) {
       try {
