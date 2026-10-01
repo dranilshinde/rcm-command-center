@@ -6,3 +6,4 @@
 - [ ] Phase 1 verification (needs a signed-up account) & report
 - [x] Phase 2: claim core (patients, admissions, pre-auth, discharge, claims, work queue, readiness, Excel import)
 - [ ] Phase 2 browser check with a signed-in account + Rohini ID field on hospital edit form
+- [x] Phase 3: queries, follow-ups, SLA rules, reminders, escalations engine (hourly)

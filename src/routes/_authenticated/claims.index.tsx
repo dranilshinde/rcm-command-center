@@ -73,6 +73,7 @@ function Claims() {
           <SelectContent>
             <SelectItem value="all">Any readiness</SelectItem><SelectItem value="ready">Ready (90+)</SelectItem>
             <SelectItem value="review">Review (75–89)</SelectItem><SelectItem value="not_ready">Not ready (&lt;75)</SelectItem>
+            <SelectItem value="sla_breached">SLA breached</SelectItem>
           </SelectContent>
         </Select>
         {session.hospitals.length > 1 ? (
@@ -92,7 +93,7 @@ function Claims() {
         rows.length === 0 ? <EmptyState title="No claims match" description="Discharge a patient from Admissions or import your claims sheet." /> : (
           <DataTable head={[
             <Checkbox key="all" checked={sel.length === rows.length} onCheckedChange={(v) => setSel(v ? rows.map((r) => r.id) : [])} aria-label="Select all" />,
-            "RCM ID", "Claim no.", "Patient", "Hospital", "Payer", "Date", "Claimed", "Approved", "Settled", "Readiness", "Status", "Owner",
+            "RCM ID", "Claim no.", "Patient", "Hospital", "Payer", "Date", "Claimed", "Approved", "Settled", "Readiness", "SLA due", "Status", "Owner",
           ]}>
             {rows.map((c) => (
               <tr key={c.id} className={tr}>
@@ -107,7 +108,8 @@ function Claims() {
                 <td className={`${td} tnum`}>{inr(c.approved_amount)}</td>
                 <td className={`${td} tnum`}>{inr(c.settled_amount)}</td>
                 <td className={td}><ReadinessBadge score={c.readiness_score} compact /></td>
-                <td className={td}><Chip value={c.status} /></td>
+                <td className={`${td} tnum ${c.sla_due_at && new Date(c.sla_due_at).getTime() < Date.now() ? "font-semibold text-risk" : ""}`}>{c.sla_due_at ? fmtDate(c.sla_due_at) : "—"}</td>
+                <td className={td}><Chip value={c.status} />{c.escalation_level ? <span className="ml-1"><Chip value="escalated" label={`L${c.escalation_level}`} /></span> : null}</td>
                 <td className={`${td} text-muted-foreground`}>{c.profiles?.full_name ?? "Unassigned"}</td>
               </tr>
             ))}

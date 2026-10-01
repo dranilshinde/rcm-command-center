@@ -30,6 +30,18 @@ async function hospitalOrg(sb: Sb, hospitalId: string) {
   return data.organization_id as string;
 }
 
+/** Hours allowed for a process, using the most specific SLA rule (TPA > insurer > hospital > org > platform). */
+async function slaHours(sb: Sb, process: string, hospitalId: string, admissionId: string | null, fallback: number) {
+  let ins: string | null = null, tpa: string | null = null;
+  if (admissionId) {
+    const { data } = await sb.from("admissions").select("insurer_id, tpa_id").eq("id", admissionId).maybeSingle();
+    ins = data?.insurer_id ?? null; tpa = data?.tpa_id ?? null;
+  }
+  const { data } = await sb.rpc("sla_hours", { _process: process, _hosp: hospitalId, _ins: ins as string, _tpa: tpa as string, _default: fallback });
+  return typeof data === "number" ? data : fallback;
+}
+const inHours = (h: number) => new Date(Date.now() + h * 3600e3).toISOString();
+
 /** Recomputes and stores the readiness score of a claim from its admission and pre-auths. */
 async function refreshReadiness(sb: Sb, claimId: string) {
   const { data: c } = await sb
@@ -193,7 +205,7 @@ export const dischargeAdmission = createServerFn({ method: "POST" })
     await sb.from("tasks").insert({
       organization_id: a.organization_id, hospital_id: a.hospital_id, branch_id: a.branch_id,
       claim_id: claim.id, entity_id: claim.id, title: `Prepare claim ${claim.claim_code}`,
-      task_type: "prepare_claim", due_at: new Date(Date.now() + 24 * 3600e3).toISOString(),
+      task_type: "prepare_claim", due_at: inHours(await slaHours(sb, "submission", a.hospital_id, a.id, 72)),
       amount_at_stake: data.claimed_amount, created_by: context.userId,
     });
     await refreshReadiness(sb, claim.id);
@@ -225,14 +237,21 @@ export const createPreauth = createServerFn({ method: "POST" })
   }).parse(d))
   .handler(async ({ context, data }) => {
     const sb = context.supabase;
-    const { data: a } = await sb.from("admissions").select("organization_id, hospital_id").eq("id", data.admissionId).maybeSingle();
+    const { data: a } = await sb.from("admissions").select("organization_id, hospital_id, branch_id, ip_number, patients(full_name)").eq("id", data.admissionId).maybeSingle();
     if (!a) throw new Error("Admission not found.");
-    const { error } = await sb.from("preauths").insert({
+    const { data: pa, error } = await sb.from("preauths").insert({
       organization_id: a.organization_id, hospital_id: a.hospital_id, admission_id: data.admissionId,
       kind: data.kind, requested_amount: data.requested_amount, reference_no: data.reference_no || null,
       created_by: context.userId,
-    });
+    }).select("id").single();
     if (error) throw new Error(friendly(error.message, "pre-auth"));
+    const pname = (a.patients as unknown as { full_name: string } | null)?.full_name ?? "patient";
+    await sb.from("tasks").insert({
+      organization_id: a.organization_id, hospital_id: a.hospital_id, branch_id: a.branch_id,
+      entity_type: "preauth", entity_id: pa.id, title: `Pre-auth decision pending — ${pname}${a.ip_number ? ` (IP ${a.ip_number})` : ""}`,
+      task_type: "preauth", priority: "high", amount_at_stake: data.requested_amount,
+      due_at: inHours(await slaHours(sb, "preauth", a.hospital_id, data.admissionId, 4)), created_by: context.userId,
+    });
     return { ok: true };
   });
 
@@ -251,6 +270,10 @@ export const decidePreauth = createServerFn({ method: "POST" })
       updated_by: context.userId,
     }).eq("id", data.preauthId).select("admission_id").single();
     if (error) throw new Error(friendly(error.message, "pre-auth"));
+    if (["approved", "rejected"].includes(data.status)) {
+      await sb.from("tasks").update({ status: "completed", completed_at: new Date().toISOString(), updated_by: context.userId })
+        .eq("entity_type", "preauth").eq("entity_id", data.preauthId).in("status", ACTIVE_TASK_STATUSES);
+    }
     const { data: claims } = await sb.from("claims").select("id").eq("admission_id", p.admission_id);
     for (const c of claims ?? []) await refreshReadiness(sb, c.id);
     return { ok: true };
@@ -264,7 +287,7 @@ export const listClaims = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const page = Math.max(1, data.page ?? 1);
     let q = context.supabase.from("claims")
-      .select("id, claim_code, external_claim_no, status, reconciled, claim_date, claimed_amount, approved_amount, settled_amount, short_payment, readiness_score, priority, hospital_id, hospitals(name), patients(full_name), admissions(ip_number, insurers(name), tpas(name)), profiles:assigned_to(full_name)", { count: "exact" })
+      .select("id, claim_code, external_claim_no, status, reconciled, claim_date, claimed_amount, approved_amount, settled_amount, short_payment, readiness_score, priority, sla_due_at, sla_process, escalation_level, hospital_id, hospitals(name), patients(full_name), admissions(ip_number, insurers(name), tpas(name)), profiles:assigned_to(full_name)", { count: "exact" })
       .is("deleted_at", null)
       .order("claim_date", { ascending: false })
       .order("created_at", { ascending: false })
@@ -275,6 +298,7 @@ export const listClaims = createServerFn({ method: "GET" })
     if (data.readiness === "ready") q = q.gte("readiness_score", 90);
     if (data.readiness === "review") q = q.gte("readiness_score", 75).lt("readiness_score", 90);
     if (data.readiness === "not_ready") q = q.lt("readiness_score", 75);
+    if (data.readiness === "sla_breached") q = q.lt("sla_due_at", new Date().toISOString()).in("status", OPEN_CLAIM_STATUSES);
     if (data.from) q = q.gte("claim_date", data.from);
     if (data.to) q = q.lte("claim_date", data.to);
     if (data.search) {
@@ -295,18 +319,22 @@ export const getClaimDetail = createServerFn({ method: "GET" })
       .select("*, hospitals(name, rohini_id), patients(id, full_name, uhid, phone, member_id), admissions(*, insurers(name), tpas(name)), profiles:assigned_to(id, full_name)")
       .eq("id", data.claimId).maybeSingle();
     if (error || !claim) throw new Error("This claim does not exist or you do not have access to it.");
-    const [history, notes, payments, couriers, preauths, tasks] = await Promise.all([
+    const [history, notes, payments, couriers, preauths, tasks, queries, followups, escalations] = await Promise.all([
       sb.from("claim_status_history").select("*").eq("claim_id", claim.id).order("created_at"),
       sb.from("claim_notes").select("*").eq("claim_id", claim.id).order("created_at"),
       sb.from("claim_payments").select("*").eq("claim_id", claim.id).order("payment_date"),
       sb.from("claim_couriers").select("*").eq("claim_id", claim.id),
       sb.from("preauths").select("*").eq("admission_id", claim.admission_id).order("requested_at"),
       sb.from("tasks").select("id, title, status, priority, due_at, task_type, profiles:assigned_to(full_name)").eq("claim_id", claim.id).order("created_at", { ascending: false }),
+      sb.from("claim_queries").select("*").eq("claim_id", claim.id).order("raised_at", { ascending: false }),
+      sb.from("claim_followups").select("*").eq("claim_id", claim.id).order("created_at", { ascending: false }),
+      sb.from("escalations").select("*").eq("claim_id", claim.id).order("created_at", { ascending: false }),
     ]);
     return {
       claim: claim as any,
       history: history.data ?? [], notes: notes.data ?? [], payments: payments.data ?? [],
       couriers: couriers.data ?? [], preauths: preauths.data ?? [], tasks: (tasks.data ?? []) as any[],
+      queries: queries.data ?? [], followups: followups.data ?? [], escalations: escalations.data ?? [],
     };
   });
 
@@ -318,16 +346,23 @@ export const runClaimAction = createServerFn({ method: "POST" })
     note: z.string().max(2000).nullable().optional(),
     external_claim_no: z.string().max(100).nullable().optional(),
     approved_amount: z.number().min(0).max(1e9).nullable().optional(),
+    query_category: z.string().max(40).nullable().optional(),
   }).parse(d))
   .handler(async ({ context, data }) => {
     const sb = context.supabase;
-    const { data: c } = await sb.from("claims").select("id, claim_code, status, organization_id, hospital_id, branch_id, approved_amount, claimed_amount, short_payment, readiness_score, assigned_to").eq("id", data.claimId).maybeSingle();
+    const { data: c } = await sb.from("claims").select("id, claim_code, status, organization_id, hospital_id, branch_id, admission_id, approved_amount, claimed_amount, short_payment, readiness_score, assigned_to").eq("id", data.claimId).maybeSingle();
     if (!c) throw new Error("Claim not found.");
     const def = ACTIONS[data.action];
     if (!def.from.includes(c.status)) throw new Error(`"${def.label}" is not possible while the claim is ${c.status.replace(/_/g, " ")}.`);
     if ((data.action === "record_query" || data.action === "deny") && !data.note?.trim())
       throw new Error("Please describe the query or denial reason.");
     if (data.action === "approve" && !data.approved_amount) throw new Error("Enter the approved amount.");
+    if (data.action === "reply_query" && !data.note?.trim()) throw new Error("Write the reply you sent to the payer.");
+    const sla: Partial<Record<ClaimAction, [string, number]>> = {
+      submit: ["settlement", 1080], record_query: ["query_response", 48], reply_query: ["settlement", 1080], approve: ["payment", 720],
+    };
+    const slaDef = sla[data.action];
+    const slaH = slaDef ? await slaHours(sb, slaDef[0], c.hospital_id, c.admission_id, slaDef[1]) : null;
 
     const patch: Database["public"]["Tables"]["claims"]["Update"] = { status: def.to, last_status_at: new Date().toISOString(), updated_by: context.userId };
     if (data.action === "submit") {
@@ -335,6 +370,8 @@ export const runClaimAction = createServerFn({ method: "POST" })
       if (data.external_claim_no) patch.external_claim_no = data.external_claim_no;
     }
     if (data.action === "approve") patch.approved_amount = data.approved_amount ?? 0;
+    if (slaDef && slaH) { patch.sla_process = slaDef[0]; patch.sla_due_at = inHours(slaH); }
+    if (["settle", "close", "deny", "mark_short_paid"].includes(data.action)) { patch.sla_process = null; patch.sla_due_at = null; }
     if (data.action === "deny" || data.action === "record_query") patch.insurer_comments = data.note ?? null;
     const { error } = await sb.from("claims").update(patch).eq("id", c.id);
     if (error) throw new Error(friendly(error.message, "claim"));
@@ -345,19 +382,29 @@ export const runClaimAction = createServerFn({ method: "POST" })
       from_status: c.status, to_status: def.to, note: data.note || null, actor_id: context.userId, actor_name: name,
     });
 
+    if (data.action === "record_query") {
+      await sb.from("claim_queries").insert({
+        organization_id: c.organization_id, hospital_id: c.hospital_id, claim_id: c.id, category: data.query_category || "documentation",
+        query_text: data.note!, due_at: inHours(slaH ?? 48), created_by: context.userId,
+      });
+    }
+    if (data.action === "reply_query") {
+      await sb.from("claim_queries").update({ status: "replied", reply_text: data.note ?? null, replied_at: new Date().toISOString(), replied_by: context.userId, updated_by: context.userId })
+        .eq("claim_id", c.id).eq("status", "open");
+    }
     // close tasks that this step resolves, open the next one
     const resolves: Record<string, string[]> = {
-      submit: ["prepare_claim"], reply_query: ["query"], settle: ["payment_followup", "short_payment"],
-      close: ["prepare_claim", "query", "denial", "payment_followup", "short_payment"],
+      submit: ["prepare_claim"], reply_query: ["query"], settle: ["payment_followup", "short_payment", "commitment_missed"],
+      close: ["prepare_claim", "query", "denial", "payment_followup", "short_payment", "commitment_missed"],
     };
     if (resolves[data.action]) {
       await sb.from("tasks").update({ status: "completed", completed_at: new Date().toISOString(), updated_by: context.userId })
         .eq("claim_id", c.id).in("task_type", resolves[data.action]!).in("status", ACTIVE_TASK_STATUSES);
     }
     const next: Partial<Record<ClaimAction, { title: string; type: string; hours: number; priority?: string }>> = {
-      record_query: { title: `Reply to payer query — ${c.claim_code}`, type: "query", hours: 48, priority: "high" },
+      record_query: { title: `Reply to payer query — ${c.claim_code}`, type: "query", hours: slaH ?? 48, priority: "high" },
       deny: { title: `Review denial — ${c.claim_code}`, type: "denial", hours: 72, priority: "high" },
-      approve: { title: `Follow up payment — ${c.claim_code}`, type: "payment_followup", hours: 24 * 30 },
+      approve: { title: `Follow up payment — ${c.claim_code}`, type: "payment_followup", hours: slaH ?? 720 },
       mark_short_paid: { title: `Recover short payment — ${c.claim_code}`, type: "short_payment", hours: 24 * 7, priority: "high" },
     };
     const n = next[data.action];
@@ -450,7 +497,7 @@ export const recordPayment = createServerFn({ method: "POST" })
       note: `Payment ₹${data.amount.toLocaleString("en-IN")} received (UTR ${data.utr_number})`, actor_id: context.userId, actor_name: name,
     });
     await sb.from("tasks").update({ status: "completed", completed_at: new Date().toISOString() })
-      .eq("claim_id", c.id).eq("task_type", "payment_followup").in("status", ACTIVE_TASK_STATUSES);
+      .eq("claim_id", c.id).in("task_type", ["payment_followup", "payer_followup", "commitment_missed"]).in("status", ACTIVE_TASK_STATUSES);
     if (to === "short_paid") {
       const { count } = await sb.from("tasks").select("id", { count: "exact", head: true }).eq("claim_id", c.id).eq("task_type", "short_payment").in("status", ACTIVE_TASK_STATUSES);
       if (!count) await sb.from("tasks").insert({
@@ -498,7 +545,7 @@ export const listTasks = createServerFn({ method: "GET" })
     const now = new Date();
     const endOfDay = new Date(now); endOfDay.setHours(23, 59, 59, 999);
     let q = context.supabase.from("tasks")
-      .select("id, title, description, status, priority, task_type, due_at, amount_at_stake, claim_id, hospital_id, assigned_to, hospitals(name), claims(claim_code, status), profiles:assigned_to(full_name)", { count: "exact" })
+      .select("id, title, description, status, priority, task_type, due_at, amount_at_stake, escalation_level, claim_id, hospital_id, assigned_to, hospitals(name), claims(claim_code, status), profiles:assigned_to(full_name)", { count: "exact" })
       .order("due_at", { ascending: true, nullsFirst: false })
       .range((page - 1) * PAGE, page * PAGE - 1);
     if (data.view === "completed") q = q.in("status", ["completed", "cancelled"]);
@@ -511,6 +558,8 @@ export const listTasks = createServerFn({ method: "GET" })
       case "high_priority": q = q.in("priority", ["high", "urgent"]); break;
       case "high_value": q = q.gte("amount_at_stake", 100000); break;
       case "query": q = q.eq("task_type", "query"); break;
+      case "followup": q = q.in("task_type", ["payer_followup", "commitment_missed", "payment_followup"]); break;
+      case "preauth": q = q.eq("task_type", "preauth"); break;
       case "escalated": q = q.eq("status", "escalated"); break;
     }
     const { data: rows, count, error } = await q;

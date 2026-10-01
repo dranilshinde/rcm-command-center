@@ -19,14 +19,16 @@ const NAV: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Dashboard", to: "/dashboard", icon: Gauge },
-      { label: "Command Center", icon: Activity, phase: 3 },
+      { label: "Command Center", icon: Activity, phase: 4 },
       { label: "Work Queue", to: "/work-queue", icon: ListChecks },
       { label: "Claims", to: "/claims", icon: FileStack },
       { label: "Admissions", to: "/admissions", icon: HeartPulse },
       { label: "Pre-Authorisation", to: "/preauth", icon: ClipboardList },
       { label: "Patients", to: "/patients", icon: Users },
       { label: "Import Claims", to: "/imports", icon: Database },
-      { label: "Queries & Denials", icon: HeartPulse, phase: 3 },
+      { label: "Payer Queries", to: "/queries", icon: HeartPulse },
+      { label: "Payer Follow-ups", to: "/followups", icon: Activity },
+      { label: "Escalations", to: "/escalations", icon: Bell },
     ],
   },
   {
@@ -52,6 +54,7 @@ const NAV: NavSection[] = [
   {
     title: "Platform",
     items: [
+      { label: "SLA & Reminder Rules", to: "/sla-rules", icon: ScrollText },
       { label: "Roles & Permissions", to: "/roles", icon: ShieldCheck },
       { label: "Master Data", to: "/master-data", icon: Database },
       { label: "Audit Log", to: "/audit", icon: ScrollText },
