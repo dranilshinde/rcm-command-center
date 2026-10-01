@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdmissionsRouteImport } from './routes/_authenticated/admissions'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
@@ -19,7 +20,9 @@ import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedPayersRouteImport } from './routes/_authenticated/payers'
+import { Route as AuthenticatedPreauthRouteImport } from './routes/_authenticated/preauth'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
@@ -39,6 +42,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdmissionsRoute = AuthenticatedAdmissionsRouteImport.update({
+  id: '/admissions',
+  path: '/admissions',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
@@ -78,9 +86,19 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPayersRoute = AuthenticatedPayersRouteImport.update({
   id: '/payers',
   path: '/payers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPreauthRoute = AuthenticatedPreauthRouteImport.update({
+  id: '/preauth',
+  path: '/preauth',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
@@ -114,6 +132,7 @@ const AuthenticatedHospitalsHospitalIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admissions': typeof AuthenticatedAdmissionsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -121,7 +140,9 @@ export interface FileRoutesByFullPath {
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRoute
+  '/preauth': typeof AuthenticatedPreauthRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -131,6 +152,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admissions': typeof AuthenticatedAdmissionsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -138,7 +160,9 @@ export interface FileRoutesByTo {
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRoute
+  '/preauth': typeof AuthenticatedPreauthRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -150,6 +174,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admissions': typeof AuthenticatedAdmissionsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -157,7 +182,9 @@ export interface FileRoutesById {
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_authenticated/payers': typeof AuthenticatedPayersRoute
+  '/_authenticated/preauth': typeof AuthenticatedPreauthRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
@@ -169,6 +196,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/admissions'
     | '/audit'
     | '/dashboard'
     | '/hospital-groups'
@@ -176,7 +204,9 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/notifications'
     | '/onboarding'
+    | '/patients'
     | '/payers'
+    | '/preauth'
     | '/roles'
     | '/settings'
     | '/users'
@@ -186,6 +216,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/admissions'
     | '/audit'
     | '/dashboard'
     | '/hospital-groups'
@@ -193,7 +224,9 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/notifications'
     | '/onboarding'
+    | '/patients'
     | '/payers'
+    | '/preauth'
     | '/roles'
     | '/settings'
     | '/users'
@@ -204,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admissions'
     | '/_authenticated/audit'
     | '/_authenticated/dashboard'
     | '/_authenticated/hospital-groups'
@@ -211,7 +245,9 @@ export interface FileRouteTypes {
     | '/_authenticated/master-data'
     | '/_authenticated/notifications'
     | '/_authenticated/onboarding'
+    | '/_authenticated/patients'
     | '/_authenticated/payers'
+    | '/_authenticated/preauth'
     | '/_authenticated/roles'
     | '/_authenticated/settings'
     | '/_authenticated/users'
@@ -247,6 +283,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admissions': {
+      id: '/_authenticated/admissions'
+      path: '/admissions'
+      fullPath: '/admissions'
+      preLoaderRoute: typeof AuthenticatedAdmissionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
@@ -297,11 +340,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/patients': {
+      id: '/_authenticated/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof AuthenticatedPatientsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/payers': {
       id: '/_authenticated/payers'
       path: '/payers'
       fullPath: '/payers'
       preLoaderRoute: typeof AuthenticatedPayersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/preauth': {
+      id: '/_authenticated/preauth'
+      path: '/preauth'
+      fullPath: '/preauth'
+      preLoaderRoute: typeof AuthenticatedPreauthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/roles': {
@@ -343,6 +400,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdmissionsRoute: typeof AuthenticatedAdmissionsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
@@ -350,7 +408,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
   AuthenticatedPayersRoute: typeof AuthenticatedPayersRoute
+  AuthenticatedPreauthRoute: typeof AuthenticatedPreauthRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
@@ -359,6 +419,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdmissionsRoute: AuthenticatedAdmissionsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
@@ -366,7 +427,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
   AuthenticatedPayersRoute: AuthenticatedPayersRoute,
+  AuthenticatedPreauthRoute: AuthenticatedPreauthRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
