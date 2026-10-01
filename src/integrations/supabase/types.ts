@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          full_name: string
+          hospital_id: string
+          id: string
+          invited_by: string | null
+          last_sent_at: string
+          organization_id: string
+          revoked_at: string | null
+          revoked_by: string | null
+          role_key: string
+          send_count: number
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          full_name?: string
+          hospital_id: string
+          id?: string
+          invited_by?: string | null
+          last_sent_at?: string
+          organization_id: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_key: string
+          send_count?: number
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          hospital_id?: string
+          id?: string
+          invited_by?: string | null
+          last_sent_at?: string
+          organization_id?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role_key?: string
+          send_count?: number
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_invitations_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
