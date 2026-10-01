@@ -6,7 +6,9 @@ import {
   computeReadiness, normaliseStatus, type ClaimAction, type ImportRow,
 } from "./claims-domain";
 
-type Sb = Parameters<Parameters<ReturnType<typeof createServerFn>["handler"]>[0]>[0] extends never ? never : any;
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+type Sb = SupabaseClient<Database>;
 
 const PAGE = 25;
 
