@@ -105,31 +105,13 @@ export const runOnboarding = createServerFn({ method: "POST" })
 
       let adminCount = 0;
       if (h.admins.length) {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { inviteHospitalAdmin } = await import("./invite.server");
         for (const a of h.admins) {
-          let userId: string | null = null;
-          const { data: existing } = await supabaseAdmin.from("profiles").select("id").ilike("email", a.email).maybeSingle();
-          if (existing) {
-            userId = existing.id;
-          } else {
-            const { data: inv, error: ie } = await supabaseAdmin.auth.admin.inviteUserByEmail(a.email, {
-              data: { full_name: a.full_name }, redirectTo: data.redirectTo,
-            });
-            if (ie || !inv.user) { problems.push(`${a.email}: invitation could not be sent.`); continue; }
-            userId = inv.user.id;
-            await supabaseAdmin.rpc("bootstrap_user", { _user_id: userId, _email: a.email, _full_name: a.full_name });
-          }
-          await supabaseAdmin.from("profiles").update({ organization_id: orgId }).eq("id", userId).is("organization_id", null);
-          const rid = roleId(a.roleKey);
-          const { error: re } = await supabaseAdmin.from("user_roles").insert({
-            user_id: userId, role_id: rid!, organization_id: orgId, hospital_id: hosp.id, created_by: uid,
+          const r = await inviteHospitalAdmin({
+            organizationId: orgId, hospitalId: hosp.id, email: a.email, fullName: a.full_name,
+            roleKey: a.roleKey, invitedBy: uid, redirectTo: data.redirectTo,
           });
-          const { error: se } = await supabaseAdmin.from("user_scopes").insert({
-            user_id: userId, scope_type: "hospital", organization_id: orgId, hospital_id: hosp.id, created_by: uid,
-          });
-          if ((re && !re.message.includes("duplicate")) || (se && !se.message.includes("duplicate"))) {
-            problems.push(`${a.email}: access could not be granted.`);
-          } else adminCount++;
+          if (r.ok) adminCount++; else problems.push(r.reason);
         }
       }
 
