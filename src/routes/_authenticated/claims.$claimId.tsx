@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/claims/$claimId")({
     ],
   }),
   component: ClaimPage,
-  errorComponent: ({ error }) => <div className="p-6 text-sm">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-6 text-sm">{error instanceof Error ? error.message : "Could not open this claim."}</div>,
 });
 
 function invalidate(qc: ReturnType<typeof useQueryClient>, id: string) {
@@ -158,7 +158,7 @@ function ClaimPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return <section className="rounded-lg border border-border bg-card p-4"><h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>{children}</section>;
 }
-function Money({ label, v, tone, hint }: { label: string; v: number; tone?: "positive" | "risk"; hint?: string }) {
+function Money({ label, v, tone, hint }: { label: string; v: number; tone?: "positive" | "risk" | undefined; hint?: string }) {
   return <div title={hint}><p className="text-[11px] text-muted-foreground">{label}</p><p className={`tnum text-[15px] font-semibold ${tone === "positive" ? "text-positive" : tone === "risk" ? "text-risk" : ""}`}>{inr(v)}</p></div>;
 }
 function Facts({ items }: { items: [string, string | null | undefined][] }) {

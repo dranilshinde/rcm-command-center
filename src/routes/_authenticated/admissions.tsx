@@ -97,8 +97,8 @@ function NewAdmissionDialog() {
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
   async function submit() {
-    if (!f.hospitalId) return toast.error("Choose a hospital.");
-    if (f.full_name.trim().length < 2) return toast.error("Enter the patient's name.");
+    if (!f.hospitalId) { toast.error("Choose a hospital."); return; }
+    if (f.full_name.trim().length < 2) { toast.error("Enter the patient's name."); return; }
     setBusy(true);
     try {
       await create({ data: {
@@ -170,7 +170,7 @@ function DischargeDialog({ admissionId, admissionDate }: { admissionId: string; 
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
   async function submit() {
-    if (date < admissionDate) return toast.error("Discharge date cannot be before admission.");
+    if (date < admissionDate) { toast.error("Discharge date cannot be before admission."); return; }
     setBusy(true);
     try {
       await discharge({ data: { admissionId, discharge_date: date, claimed_amount: Number(amount) || 0 } });
@@ -204,7 +204,7 @@ function PreauthDialog({ admissionId }: { admissionId: string }) {
   const [ref, setRef] = useState("");
   const [busy, setBusy] = useState(false);
   async function submit() {
-    if (!(Number(amount) > 0)) return toast.error("Enter the requested amount.");
+    if (!(Number(amount) > 0)) { toast.error("Enter the requested amount."); return; }
     setBusy(true);
     try {
       await create({ data: { admissionId, kind, requested_amount: Number(amount), reference_no: ref || null } });
