@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { hospitalDetailQuery, sessionQuery } from "@/lib/queries";
+import { EditBranchButton, EditDepartmentButton, EditHospitalButton, GoLiveReviewPanel, HospitalAdminsPanel } from "@/components/rcm/setup-editors";
 import { createBranch, createDepartment, createTeam, setOnboardingStepStatus } from "@/lib/rcm.functions";
 
 export const Route = createFileRoute("/_authenticated/hospitals/$hospitalId")({
@@ -63,7 +64,7 @@ function HospitalDetail() {
       <PageHeader
         title={hospital.name}
         description={`${hospital.group_name} · ${hospital.city ?? "—"}, ${hospital.state ?? "—"} · code ${hospital.code}`}
-        actions={<StatusChip status={hospital.status} />}
+        actions={<>{canEdit ? <EditHospitalButton hospital={hospital} groups={session.groups} /> : null}<StatusChip status={hospital.status} /></>}
       />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,7 +79,9 @@ function HospitalDetail() {
           <TabsTrigger value="branches">Branches</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="teams">Teams</TabsTrigger>
+          <TabsTrigger value="admins">Admin users</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
+          <TabsTrigger value="review">Go-live review</TabsTrigger>
         </TabsList>
 
         <TabsContent value="branches" className="mt-4">
@@ -112,8 +115,8 @@ function HospitalDetail() {
             <EmptyState title="No branches yet" description="Add the first campus or unit for this hospital." />
           ) : (
             <SimpleTable
-              head={["Branch", "Code", "City", "State", "Status"]}
-              rows={branches.map((b) => [b.name, b.code, b.city ?? "—", b.state ?? "—", <StatusChip key={b.id} status={b.status} />])}
+              head={["Branch", "Code", "City", "State", "Status", ""]}
+              rows={branches.map((b) => [b.name, b.code, b.city ?? "—", b.state ?? "—", <StatusChip key={b.id} status={b.status} />, canEdit ? <EditBranchButton key={`e${b.id}`} branch={b} /> : null])}
             />
           )}
         </TabsContent>
@@ -157,13 +160,14 @@ function HospitalDetail() {
             <EmptyState title="No departments yet" />
           ) : (
             <SimpleTable
-              head={["Department", "Code", "Type", "Branch", "Status"]}
+              head={["Department", "Code", "Type", "Branch", "Status", ""]}
               rows={departments.map((d) => [
                 d.name,
                 d.code,
                 d.dept_type,
                 branches.find((b) => b.id === d.branch_id)?.name ?? "Hospital-wide",
                 <StatusChip key={d.id} status={d.status} />,
+                canEditMaster ? <EditDepartmentButton key={`e${d.id}`} dept={d} branches={branches} /> : null,
               ])}
             />
           )}
@@ -209,6 +213,14 @@ function HospitalDetail() {
               ])}
             />
           )}
+        </TabsContent>
+
+        <TabsContent value="admins" className="mt-4">
+          <HospitalAdminsPanel hospitalId={hospital.id} canManage={session.isSuperAdmin || session.permissions.includes("users.ASSIGN")} selfId={session.userId} />
+        </TabsContent>
+
+        <TabsContent value="review" className="mt-4">
+          <GoLiveReviewPanel hospitalId={hospital.id} />
         </TabsContent>
 
         <TabsContent value="onboarding" className="mt-4">

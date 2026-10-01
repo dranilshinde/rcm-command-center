@@ -4,7 +4,7 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity, Bell, Building2, ClipboardList, Database, FileStack, Gauge, HeartPulse,
   Landmark, LayoutGrid, LineChart, ListChecks, LogOut, Network, Receipt, ScrollText,
-  Search, Settings, ShieldCheck, Users, Wallet,
+  Mail, Search, Settings, ShieldCheck, Users, Wallet,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,7 @@ const NAV: NavSection[] = [
       { label: "Onboarding", to: "/onboarding", icon: ClipboardList },
       { label: "Payers & TPAs", to: "/payers", icon: LayoutGrid },
       { label: "Users & Teams", to: "/users", icon: Users },
+      { label: "Admin Invitations", to: "/invitations", icon: Mail },
     ],
   },
   {
@@ -160,9 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/95 px-4 backdropblur">
           <Link to="/dashboard" className="flex items-center gap-2 lg:hidden">
-            <span className="flex h-7 w-7 items-center justify-center rounded bg-primary text-[11px] font-bold text-primary-foreground">
-              RB
-            </span>
+            <img src={logo.url} alt="RCM Buddy" className="h-8 w-8 object-contain" />
           </Link>
           <div className="relative hidden max-w-md flex-1 md:block">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

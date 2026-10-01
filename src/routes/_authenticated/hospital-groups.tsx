@@ -13,6 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { groupsQuery, organizationsQuery, sessionQuery } from "@/lib/queries";
 import { createHospitalGroup } from "@/lib/rcm.functions";
+import { EditGroupButton } from "@/components/rcm/setup-editors";
 
 export const Route = createFileRoute("/_authenticated/hospital-groups")({
   loader: ({ context }) =>
@@ -58,6 +59,7 @@ function HospitalGroups() {
                 <th className="px-3 py-2 font-medium">Headquarters</th>
                 <th className="px-3 py-2 font-medium">Hospitals</th>
                 <th className="px-3 py-2 font-medium">Status</th>
+                {canCreate ? <th className="px-3 py-2" /> : null}
               </tr>
             </thead>
             <tbody>
@@ -69,6 +71,7 @@ function HospitalGroups() {
                   <td className="px-3 py-2 text-muted-foreground">{g.headquarters_city ?? "—"}</td>
                   <td className="tnum px-3 py-2">{g.hospital_count}</td>
                   <td className="px-3 py-2"><StatusChip status={g.status} /></td>
+                  {canCreate ? <td className="px-3 py-2 text-right"><EditGroupButton group={g} /></td> : null}
                 </tr>
               ))}
             </tbody>
