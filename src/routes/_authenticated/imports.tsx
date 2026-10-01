@@ -43,8 +43,8 @@ function Imports() {
       const wb = XLSX.read(await f.arrayBuffer(), { cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]!]!;
       const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: null, raw: true });
-      if (!raw.length) return toast.error("The first sheet is empty.");
-      if (raw.length > 2000) return toast.error("Please upload at most 2,000 rows at a time.");
+      if (!raw.length) { toast.error("The first sheet is empty."); return; }
+      if (raw.length > 2000) { toast.error("Please upload at most 2,000 rows at a time."); return; }
       const headers = Object.keys(raw[0]!).map((h) => h.toLowerCase().replace(/\s+/g, " ").trim());
       const required = ["hospital name", "patient name", "date of admission", "claim number", "claim status"];
       setMissingCols(required.filter((c) => !headers.includes(c)));

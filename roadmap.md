@@ -4,4 +4,5 @@
 - [x] Guided hospital onboarding wizard
 - [x] Edit setup after onboarding, admin invitations page, AI go-live review
 - [ ] Phase 1 verification (needs a signed-up account) & report
-- [ ] Phase 2: claim core
+- [x] Phase 2: claim core (patients, admissions, pre-auth, discharge, claims, work queue, readiness, Excel import)
+- [ ] Phase 2 browser check with a signed-in account + Rohini ID field on hospital edit form
