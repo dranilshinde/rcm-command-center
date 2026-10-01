@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated")({
   errorComponent: ({ error }) => (
     <div className="p-8">
       <p className="text-sm font-medium">We could not open your workspace</p>
-      <p className="mt-1 text-[13px] text-muted-foreground">{error.message}</p>
+      <p className="mt-1 text-[13px] text-muted-foreground">{error instanceof Error ? error.message : "Please try again."}</p>
     </div>
   ),
 });

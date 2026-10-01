@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/hospitals/$hospitalId")({
   }),
   component: HospitalDetail,
   errorComponent: ({ error }) => (
-    <EmptyState title="This hospital is not available" description={error.message} />
+    <EmptyState title="This hospital is not available" description={error instanceof Error ? error.message : "Please try again."} />
   ),
   notFoundComponent: () => <EmptyState title="Hospital not found" />,
 });
