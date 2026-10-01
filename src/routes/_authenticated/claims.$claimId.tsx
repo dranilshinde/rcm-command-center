@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { addClaimNote, assignClaims, recordPayment, runClaimAction, updateClaimDetails } from "@/lib/claims.functions";
-import { ACTIONS, CLAIM_STATUS_LABEL, inr, type ClaimAction } from "@/lib/claims-domain";
+import { ACTIONS, CLAIM_STATUS_LABEL, QUERY_CATEGORIES, inr, type ClaimAction } from "@/lib/claims-domain";
+import { LogFollowupDialog, OUTCOME_LABEL } from "@/components/rcm/followup-dialog";
 import { assigneesQuery, claimDetailQuery } from "@/lib/claims-queries";
 
 export const Route = createFileRoute("/_authenticated/claims/$claimId")({
@@ -56,12 +57,13 @@ function ClaimPage() {
       <PageHeader
         title={`${c.claim_code} · ${c.patients?.full_name ?? ""}`}
         description={`${c.hospitals?.name ?? ""} · ${a.tpas?.name ?? a.insurers?.name ?? "Payer not set"}${c.external_claim_no ? ` · Claim no. ${c.external_claim_no}` : ""}`}
-        actions={<div className="flex items-center gap-2"><Chip value={c.status} />{c.reconciled ? <Chip value="completed" label="Letter reconciled" /> : null}<ReadinessBadge score={c.readiness_score} /></div>}
+        actions={<div className="flex items-center gap-2">{c.escalation_level ? <Chip value="escalated" label={`Escalated L${c.escalation_level}`} /> : null}{c.sla_due_at ? <span className={`tnum text-[12px] ${new Date(c.sla_due_at).getTime() < Date.now() ? "font-semibold text-risk" : "text-muted-foreground"}`}>SLA {c.sla_process?.replace(/_/g, " ")} due {fmtDate(c.sla_due_at)}</span> : null}<Chip value={c.status} />{c.reconciled ? <Chip value="completed" label="Letter reconciled" /> : null}<ReadinessBadge score={c.readiness_score} /></div>}
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
         {available.map((k) => <Button key={k} size="sm" variant={k === "submit" || k === "approve" ? "default" : "outline"} onClick={() => setAction(k)}>{ACTIONS[k].label}</Button>)}
         {["approved", "short_paid", "settled"].includes(c.status) ? <Button size="sm" variant="outline" onClick={() => setPayOpen(true)}>Record payment</Button> : null}
+        {["submitted", "query", "query_replied", "approved", "short_paid"].includes(c.status) ? <LogFollowupDialog claimId={c.id} /> : null}
         <Button size="sm" variant="ghost" onClick={() => setEditOpen(true)}>Edit details</Button>
         <AssignControl claimId={c.id} hospitalId={c.hospital_id} current={c.profiles?.id ?? null} />
       </div>
@@ -98,6 +100,31 @@ function ClaimPage() {
             <NoteBox claimId={c.id} />
           </Section>
 
+          {data.queries.length ? (
+            <Section title="Payer queries">
+              <ul className="space-y-3">{data.queries.map((q: any) => (
+                <li key={q.id} className="text-[13px]">
+                  <div className="flex items-center gap-2"><Chip value={q.status === "open" ? "query" : "completed"} label={q.status === "open" ? "Open" : "Replied"} /><span className="font-medium">{QUERY_CATEGORIES[q.category] ?? q.category}</span><span className="tnum text-[11px] text-muted-foreground">raised {fmtDate(q.raised_at)} · reply due {fmtDate(q.due_at)}</span></div>
+                  <p className="mt-1 whitespace-pre-wrap">{q.query_text}</p>
+                  {q.reply_text ? <p className="mt-1 whitespace-pre-wrap text-muted-foreground">Reply ({fmtDate(q.replied_at)}): {q.reply_text}</p> : null}
+                </li>
+              ))}</ul>
+            </Section>
+          ) : null}
+
+          <Section title="Payer follow-ups">
+            {data.followups.length === 0 ? <p className="text-[13px] text-muted-foreground">No follow-ups logged yet.</p> : (
+              <ul className="space-y-2">{data.followups.map((f: any) => (
+                <li key={f.id} className="border-b border-border/60 pb-2 text-[13px] last:border-0">
+                  <p><span className="font-medium">{OUTCOME_LABEL[f.outcome] ?? f.outcome}</span> <span className="text-muted-foreground">via {f.channel}{f.contact_name ? ` with ${f.contact_name}` : ""}</span></p>
+                  {f.commitment_date ? <p className="tnum">Committed: {fmtDate(f.commitment_date)}{f.commitment_amount != null ? ` · ${inr(f.commitment_amount)}` : ""}</p> : null}
+                  {f.notes ? <p className="whitespace-pre-wrap text-muted-foreground">{f.notes}</p> : null}
+                  <p className="text-[11px] text-muted-foreground">{f.author_name} · {new Date(f.created_at).toLocaleString("en-IN")}{f.next_followup_at ? ` · next ${fmtDate(f.next_followup_at)}` : ""}</p>
+                </li>
+              ))}</ul>
+            )}
+          </Section>
+
           <Section title="Payments">
             {data.payments.length === 0 ? <p className="text-[13px] text-muted-foreground">No payments recorded.</p> : (
               <table className="w-full text-[13px]"><thead><tr className="text-left text-[11px] uppercase text-muted-foreground"><th className="py-1">Date</th><th>UTR / cheque</th><th>Receipt</th><th className="text-right">Amount</th><th className="text-right">TDS</th></tr></thead>
@@ -119,6 +146,13 @@ function ClaimPage() {
               <ul className="space-y-1 text-[13px]">{gaps.map((g) => <li key={g.key} className="flex justify-between"><span>Missing: {g.label}</span><span className="tnum text-muted-foreground">−{g.weight}</span></li>)}</ul>
             )}
           </Section>
+          {data.escalations.length ? (
+            <Section title="Escalations">
+              <ul className="space-y-2">{data.escalations.map((e: any) => (
+                <li key={e.id} className="text-[13px]"><div className="flex items-center gap-2"><Chip value={e.status === "open" ? "escalated" : "completed"} label={`L${e.level} · ${e.status}`} /></div><p className="mt-1">{e.reason}</p><p className="text-[11px] text-muted-foreground">{fmtDate(e.created_at)}{e.resolution_note ? ` · ${e.resolution_note}` : ""}</p></li>
+              ))}</ul>
+            </Section>
+          ) : null}
           <Section title="Open tasks">
             {data.tasks.filter((t) => !["completed", "cancelled"].includes(t.status)).length === 0 ? <p className="text-[13px] text-muted-foreground">Nothing pending.</p> :
               <ul className="space-y-2">{data.tasks.filter((t) => !["completed", "cancelled"].includes(t.status)).map((t) => (
@@ -198,12 +232,13 @@ function ActionDialog({ claimId, action, approvedDefault, onClose }: { claimId: 
   const [note, setNote] = useState("");
   const [ext, setExt] = useState("");
   const [amt, setAmt] = useState(String(approvedDefault || ""));
+  const [cat, setCat] = useState("documentation");
   const [busy, setBusy] = useState(false);
-  const needsNote = action === "record_query" || action === "deny";
+  const needsNote = action === "record_query" || action === "deny" || action === "reply_query";
   async function go() {
     setBusy(true);
     try {
-      await run({ data: { claimId, action, note: note || null, external_claim_no: ext || null, approved_amount: action === "approve" ? Number(amt) : null } });
+      await run({ data: { claimId, action, note: note || null, external_claim_no: ext || null, approved_amount: action === "approve" ? Number(amt) : null, query_category: action === "record_query" ? cat : null } });
       toast.success(ACTIONS[action].label + " — done"); invalidate(qc, claimId); onClose();
     } catch (e) { toast.error(errMsg(e)); } finally { setBusy(false); }
   }
@@ -213,9 +248,12 @@ function ActionDialog({ claimId, action, approvedDefault, onClose }: { claimId: 
         <DialogHeader><DialogTitle>{ACTIONS[action].label}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           {action === "submit" ? <div><Label>Payer claim number (optional)</Label><Input value={ext} onChange={(e) => setExt(e.target.value)} /></div> : null}
+          {action === "record_query" ? <div><Label>Query category</Label>
+            <Select value={cat} onValueChange={setCat}><SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{Object.entries(QUERY_CATEGORIES).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select></div> : null}
           {action === "approve" ? <div><Label>Approved amount (₹)</Label><Input inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} /></div> : null}
-          <div><Label>{needsNote ? (action === "deny" ? "Denial reason" : "Query from payer") : "Note (optional)"}</Label><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></div>
-          {action === "record_query" ? <p className="text-[12px] text-muted-foreground">A “reply to query” task due in 48 hours will be added to the work queue.</p> : null}
+          <div><Label>{needsNote ? (action === "deny" ? "Denial reason" : action === "reply_query" ? "Reply sent to payer" : "Query from payer") : "Note (optional)"}</Label><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></div>
+          {action === "record_query" ? <p className="text-[12px] text-muted-foreground">A “reply to query” task is added to the work queue, due by your query-response SLA for this payer.</p> : null}
         </div>
         <DialogFooter><Button onClick={go} disabled={busy || (needsNote && !note.trim())}>{busy ? "Saving…" : "Confirm"}</Button></DialogFooter>
       </DialogContent>

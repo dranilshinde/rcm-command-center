@@ -13,9 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { rulesQuery } from "@/lib/claims-queries";
+import { ROLE_LABEL } from "@/lib/claims-domain";
 import { runEngineNow, saveReminderRule, saveSlaRule, toggleRule } from "@/lib/followups.functions";
 import { payersQuery, sessionQuery } from "@/lib/queries";
-import { ROLE_LABEL } from "./escalations";
 
 export const Route = createFileRoute("/_authenticated/sla-rules")({
   head: () => ({

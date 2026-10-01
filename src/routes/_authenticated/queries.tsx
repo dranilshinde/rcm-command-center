@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { runClaimAction } from "@/lib/claims.functions";
-import { inr } from "@/lib/claims-domain";
+import { QUERY_CATEGORIES, inr } from "@/lib/claims-domain";
 import { queriesQuery } from "@/lib/claims-queries";
 import { cn } from "@/lib/utils";
 
@@ -26,11 +26,6 @@ export const Route = createFileRoute("/_authenticated/queries")({
   component: Queries,
 });
 
-export const QUERY_CATEGORIES: Record<string, string> = {
-  documentation: "Documentation", eligibility: "Eligibility", authorization: "Authorisation", coding: "Coding",
-  billing: "Billing", tariff: "Tariff", medical_necessity: "Medical necessity", policy_exclusion: "Policy exclusion",
-  other: "Other",
-};
 
 function Queries() {
   const [view, setView] = useState("open");

@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdmissionsRouteImport } from './routes/_authenticated/admissions'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEscalationsRouteImport } from './routes/_authenticated/escalations'
+import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
 import { Route as AuthenticatedImportsRouteImport } from './routes/_authenticated/imports'
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
@@ -24,8 +26,10 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedPayersRouteImport } from './routes/_authenticated/payers'
 import { Route as AuthenticatedPreauthRouteImport } from './routes/_authenticated/preauth'
+import { Route as AuthenticatedQueriesRouteImport } from './routes/_authenticated/queries'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSlaRulesRouteImport } from './routes/_authenticated/sla-rules'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedWorkQueueRouteImport } from './routes/_authenticated/work-queue'
 import { Route as AuthenticatedClaimsIndexRouteImport } from './routes/_authenticated/claims.index'
@@ -60,6 +64,17 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEscalationsRoute =
+  AuthenticatedEscalationsRouteImport.update({
+    id: '/escalations',
+    path: '/escalations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFollowupsRoute = AuthenticatedFollowupsRouteImport.update({
+  id: '/followups',
+  path: '/followups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHospitalGroupsRoute =
@@ -110,6 +125,11 @@ const AuthenticatedPreauthRoute = AuthenticatedPreauthRouteImport.update({
   path: '/preauth',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQueriesRoute = AuthenticatedQueriesRouteImport.update({
+  id: '/queries',
+  path: '/queries',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -118,6 +138,11 @@ const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSlaRulesRoute = AuthenticatedSlaRulesRouteImport.update({
+  id: '/sla-rules',
+  path: '/sla-rules',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
@@ -161,6 +186,8 @@ export interface FileRoutesByFullPath {
   '/admissions': typeof AuthenticatedAdmissionsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/escalations': typeof AuthenticatedEscalationsRoute
+  '/followups': typeof AuthenticatedFollowupsRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
   '/imports': typeof AuthenticatedImportsRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
@@ -170,8 +197,10 @@ export interface FileRoutesByFullPath {
   '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRoute
   '/preauth': typeof AuthenticatedPreauthRoute
+  '/queries': typeof AuthenticatedQueriesRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/users': typeof AuthenticatedUsersRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
@@ -185,6 +214,8 @@ export interface FileRoutesByTo {
   '/admissions': typeof AuthenticatedAdmissionsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/escalations': typeof AuthenticatedEscalationsRoute
+  '/followups': typeof AuthenticatedFollowupsRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
   '/imports': typeof AuthenticatedImportsRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
@@ -194,8 +225,10 @@ export interface FileRoutesByTo {
   '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRoute
   '/preauth': typeof AuthenticatedPreauthRoute
+  '/queries': typeof AuthenticatedQueriesRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/users': typeof AuthenticatedUsersRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
@@ -211,6 +244,8 @@ export interface FileRoutesById {
   '/_authenticated/admissions': typeof AuthenticatedAdmissionsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/escalations': typeof AuthenticatedEscalationsRoute
+  '/_authenticated/followups': typeof AuthenticatedFollowupsRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
   '/_authenticated/imports': typeof AuthenticatedImportsRoute
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
@@ -220,8 +255,10 @@ export interface FileRoutesById {
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_authenticated/payers': typeof AuthenticatedPayersRoute
   '/_authenticated/preauth': typeof AuthenticatedPreauthRoute
+  '/_authenticated/queries': typeof AuthenticatedQueriesRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/work-queue': typeof AuthenticatedWorkQueueRoute
   '/_authenticated/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
@@ -237,6 +274,8 @@ export interface FileRouteTypes {
     | '/admissions'
     | '/audit'
     | '/dashboard'
+    | '/escalations'
+    | '/followups'
     | '/hospital-groups'
     | '/imports'
     | '/invitations'
@@ -246,8 +285,10 @@ export interface FileRouteTypes {
     | '/patients'
     | '/payers'
     | '/preauth'
+    | '/queries'
     | '/roles'
     | '/settings'
+    | '/sla-rules'
     | '/users'
     | '/work-queue'
     | '/claims/$claimId'
@@ -261,6 +302,8 @@ export interface FileRouteTypes {
     | '/admissions'
     | '/audit'
     | '/dashboard'
+    | '/escalations'
+    | '/followups'
     | '/hospital-groups'
     | '/imports'
     | '/invitations'
@@ -270,8 +313,10 @@ export interface FileRouteTypes {
     | '/patients'
     | '/payers'
     | '/preauth'
+    | '/queries'
     | '/roles'
     | '/settings'
+    | '/sla-rules'
     | '/users'
     | '/work-queue'
     | '/claims/$claimId'
@@ -286,6 +331,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admissions'
     | '/_authenticated/audit'
     | '/_authenticated/dashboard'
+    | '/_authenticated/escalations'
+    | '/_authenticated/followups'
     | '/_authenticated/hospital-groups'
     | '/_authenticated/imports'
     | '/_authenticated/invitations'
@@ -295,8 +342,10 @@ export interface FileRouteTypes {
     | '/_authenticated/patients'
     | '/_authenticated/payers'
     | '/_authenticated/preauth'
+    | '/_authenticated/queries'
     | '/_authenticated/roles'
     | '/_authenticated/settings'
+    | '/_authenticated/sla-rules'
     | '/_authenticated/users'
     | '/_authenticated/work-queue'
     | '/_authenticated/claims/$claimId'
@@ -353,6 +402,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/escalations': {
+      id: '/_authenticated/escalations'
+      path: '/escalations'
+      fullPath: '/escalations'
+      preLoaderRoute: typeof AuthenticatedEscalationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/followups': {
+      id: '/_authenticated/followups'
+      path: '/followups'
+      fullPath: '/followups'
+      preLoaderRoute: typeof AuthenticatedFollowupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hospital-groups': {
@@ -418,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPreauthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/queries': {
+      id: '/_authenticated/queries'
+      path: '/queries'
+      fullPath: '/queries'
+      preLoaderRoute: typeof AuthenticatedQueriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/roles': {
       id: '/_authenticated/roles'
       path: '/roles'
@@ -430,6 +500,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sla-rules': {
+      id: '/_authenticated/sla-rules'
+      path: '/sla-rules'
+      fullPath: '/sla-rules'
+      preLoaderRoute: typeof AuthenticatedSlaRulesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users': {
@@ -481,6 +558,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdmissionsRoute: typeof AuthenticatedAdmissionsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEscalationsRoute: typeof AuthenticatedEscalationsRoute
+  AuthenticatedFollowupsRoute: typeof AuthenticatedFollowupsRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
   AuthenticatedImportsRoute: typeof AuthenticatedImportsRoute
   AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
@@ -490,8 +569,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
   AuthenticatedPayersRoute: typeof AuthenticatedPayersRoute
   AuthenticatedPreauthRoute: typeof AuthenticatedPreauthRoute
+  AuthenticatedQueriesRoute: typeof AuthenticatedQueriesRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSlaRulesRoute: typeof AuthenticatedSlaRulesRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedWorkQueueRoute: typeof AuthenticatedWorkQueueRoute
   AuthenticatedClaimsClaimIdRoute: typeof AuthenticatedClaimsClaimIdRoute
@@ -504,6 +585,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdmissionsRoute: AuthenticatedAdmissionsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEscalationsRoute: AuthenticatedEscalationsRoute,
+  AuthenticatedFollowupsRoute: AuthenticatedFollowupsRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
   AuthenticatedImportsRoute: AuthenticatedImportsRoute,
   AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
@@ -513,8 +596,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
   AuthenticatedPayersRoute: AuthenticatedPayersRoute,
   AuthenticatedPreauthRoute: AuthenticatedPreauthRoute,
+  AuthenticatedQueriesRoute: AuthenticatedQueriesRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSlaRulesRoute: AuthenticatedSlaRulesRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedWorkQueueRoute: AuthenticatedWorkQueueRoute,
   AuthenticatedClaimsClaimIdRoute: AuthenticatedClaimsClaimIdRoute,

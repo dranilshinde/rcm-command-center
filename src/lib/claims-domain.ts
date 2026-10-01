@@ -222,3 +222,15 @@ export function mapSheetRow(raw: Record<string, unknown>, rowNumber: number) {
 
 export const inr = (n: number | null | undefined) =>
   "₹" + Number(n ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
+
+export const ROLE_LABEL: Record<string, string> = {
+  rcm_executive: "RCM executive", rcm_manager: "RCM manager", ar_manager: "AR manager", rcm_head: "RCM head",
+  hospital_admin: "Hospital admin", cfo: "CFO", finance_head: "Finance head", cashless_manager: "Cashless manager",
+  billing_manager: "Billing manager", denial_manager: "Denial manager",
+};
+
+export const QUERY_CATEGORIES: Record<string, string> = {
+  documentation: "Documentation", eligibility: "Eligibility", authorization: "Authorisation", coding: "Coding",
+  billing: "Billing", tariff: "Tariff", medical_necessity: "Medical necessity", policy_exclusion: "Policy exclusion",
+  other: "Other",
+};

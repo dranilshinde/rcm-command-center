@@ -8,7 +8,7 @@ import { Chip, DataTable, Pager, errMsg, fmtDate, td, tr } from "@/components/rc
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { inr } from "@/lib/claims-domain";
+import { ROLE_LABEL, inr } from "@/lib/claims-domain";
 import { escalationsQuery } from "@/lib/claims-queries";
 import { resolveEscalation } from "@/lib/followups.functions";
 import { cn } from "@/lib/utils";
@@ -25,11 +25,6 @@ export const Route = createFileRoute("/_authenticated/escalations")({
   component: Escalations,
 });
 
-export const ROLE_LABEL: Record<string, string> = {
-  rcm_executive: "RCM executive", rcm_manager: "RCM manager", ar_manager: "AR manager", rcm_head: "RCM head",
-  hospital_admin: "Hospital admin", cfo: "CFO", finance_head: "Finance head", cashless_manager: "Cashless manager",
-  billing_manager: "Billing manager", denial_manager: "Denial manager",
-};
 
 function Escalations() {
   const [status, setStatus] = useState("open");
