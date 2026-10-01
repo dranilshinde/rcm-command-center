@@ -45,16 +45,16 @@ export const ACTIVE_TASK_STATUSES = ["open", "in_progress", "waiting", "escalate
 /* ------------------------------------------------------------ readiness */
 
 export type ReadinessInput = {
-  policy_number?: string | null;
-  member_id?: string | null;
-  ip_number?: string | null;
-  discharge_date?: string | null;
-  diagnosis?: string | null;
-  treatment?: string | null;
+  policy_number: string | null | undefined;
+  member_id: string | null | undefined;
+  ip_number: string | null | undefined;
+  discharge_date: string | null | undefined;
+  diagnosis: string | null | undefined;
+  treatment: string | null | undefined;
   has_payer: boolean;
   preauth_approved: boolean;
   claimed_amount: number;
-  document_submitted_at?: string | null;
+  document_submitted_at: string | null | undefined;
 };
 
 const CHECKS: { key: string; label: string; weight: number; ok: (r: ReadinessInput) => boolean }[] = [
