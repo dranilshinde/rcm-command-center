@@ -400,6 +400,82 @@ export type Database = {
           },
         ]
       }
+      claim_followups: {
+        Row: {
+          author_name: string | null
+          channel: string
+          claim_id: string
+          commitment_amount: number | null
+          commitment_date: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          next_followup_at: string | null
+          notes: string | null
+          organization_id: string
+          outcome: string
+          spoc_id: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          channel?: string
+          claim_id: string
+          commitment_amount?: number | null
+          commitment_date?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          organization_id: string
+          outcome: string
+          spoc_id?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          channel?: string
+          claim_id?: string
+          commitment_amount?: number | null
+          commitment_date?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          organization_id?: string
+          outcome?: string
+          spoc_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_followups_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_followups_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_followups_spoc_id_fkey"
+            columns: ["spoc_id"]
+            isOneToOne: false
+            referencedRelation: "tpa_spocs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_notes: {
         Row: {
           author_id: string | null
@@ -511,6 +587,78 @@ export type Database = {
           },
         ]
       }
+      claim_queries: {
+        Row: {
+          category: string
+          claim_id: string
+          created_at: string
+          created_by: string | null
+          due_at: string | null
+          hospital_id: string
+          id: string
+          organization_id: string
+          query_text: string
+          raised_at: string
+          replied_at: string | null
+          replied_by: string | null
+          reply_text: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string
+          claim_id: string
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          hospital_id: string
+          id?: string
+          organization_id: string
+          query_text: string
+          raised_at?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply_text?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          claim_id?: string
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+          query_text?: string
+          raised_at?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply_text?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_queries_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_queries_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_status_history: {
         Row: {
           actor_id: string | null
@@ -580,6 +728,7 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           document_submitted_at: string | null
+          escalation_level: number
           external_claim_no: string | null
           hospital_discount: number
           hospital_id: string
@@ -588,6 +737,7 @@ export type Database = {
           insurer_comments: string | null
           invoice_number: string | null
           last_status_at: string
+          next_followup_at: string | null
           organization_id: string
           patient_id: string
           patient_paid: number
@@ -599,6 +749,8 @@ export type Database = {
           settled_amount: number
           short_payment: number | null
           shortfall_amount: number
+          sla_due_at: string | null
+          sla_process: string | null
           status: string
           tds_amount: number
           updated_at: string
@@ -618,6 +770,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           document_submitted_at?: string | null
+          escalation_level?: number
           external_claim_no?: string | null
           hospital_discount?: number
           hospital_id: string
@@ -626,6 +779,7 @@ export type Database = {
           insurer_comments?: string | null
           invoice_number?: string | null
           last_status_at?: string
+          next_followup_at?: string | null
           organization_id: string
           patient_id: string
           patient_paid?: number
@@ -637,6 +791,8 @@ export type Database = {
           settled_amount?: number
           short_payment?: number | null
           shortfall_amount?: number
+          sla_due_at?: string | null
+          sla_process?: string | null
           status?: string
           tds_amount?: number
           updated_at?: string
@@ -656,6 +812,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           document_submitted_at?: string | null
+          escalation_level?: number
           external_claim_no?: string | null
           hospital_discount?: number
           hospital_id?: string
@@ -664,6 +821,7 @@ export type Database = {
           insurer_comments?: string | null
           invoice_number?: string | null
           last_status_at?: string
+          next_followup_at?: string | null
           organization_id?: string
           patient_id?: string
           patient_paid?: number
@@ -675,6 +833,8 @@ export type Database = {
           settled_amount?: number
           short_payment?: number | null
           shortfall_amount?: number
+          sla_due_at?: string | null
+          sla_process?: string | null
           status?: string
           tds_amount?: number
           updated_at?: string
@@ -791,6 +951,116 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engine_runs: {
+        Row: {
+          finished_at: string | null
+          id: string
+          started_at: string
+          stats: Json
+          triggered_by: string | null
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          stats?: Json
+          triggered_by?: string | null
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          stats?: Json
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      escalations: {
+        Row: {
+          claim_id: string | null
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          level: number
+          notified_roles: string[]
+          organization_id: string
+          reason: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          rule_id: string | null
+          status: string
+          task_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          claim_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          level?: number
+          notified_roles?: string[]
+          organization_id: string
+          reason: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          claim_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          level?: number
+          notified_roles?: string[]
+          organization_id?: string
+          reason?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          status?: string
+          task_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalations_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -1650,6 +1920,89 @@ export type Database = {
           },
         ]
       }
+      reminder_rules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          escalation_level: number
+          hospital_id: string | null
+          id: string
+          insurer_id: string | null
+          is_active: boolean
+          name: string
+          notify_roles: string[]
+          organization_id: string | null
+          rule_key: string
+          threshold_hours: number
+          tpa_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          escalation_level?: number
+          hospital_id?: string | null
+          id?: string
+          insurer_id?: string | null
+          is_active?: boolean
+          name: string
+          notify_roles?: string[]
+          organization_id?: string | null
+          rule_key: string
+          threshold_hours: number
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          escalation_level?: number
+          hospital_id?: string | null
+          id?: string
+          insurer_id?: string | null
+          is_active?: boolean
+          name?: string
+          notify_roles?: string[]
+          organization_id?: string | null
+          rule_key?: string
+          threshold_hours?: number
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_rules_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_insurer_id_fkey"
+            columns: ["insurer_id"]
+            isOneToOne: false
+            referencedRelation: "insurers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_rules_tpa_id_fkey"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string
@@ -1784,6 +2137,83 @@ export type Database = {
           },
         ]
       }
+      sla_rules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          hospital_id: string | null
+          id: string
+          insurer_id: string | null
+          is_active: boolean
+          organization_id: string | null
+          process: string
+          target_hours: number
+          tpa_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          hospital_id?: string | null
+          id?: string
+          insurer_id?: string | null
+          is_active?: boolean
+          organization_id?: string | null
+          process: string
+          target_hours: number
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          hospital_id?: string | null
+          id?: string
+          insurer_id?: string | null
+          is_active?: boolean
+          organization_id?: string | null
+          process?: string
+          target_hours?: number
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sla_rules_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_rules_insurer_id_fkey"
+            columns: ["insurer_id"]
+            isOneToOne: false
+            referencedRelation: "insurers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_rules_tpa_id_fkey"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           amount_at_stake: number
@@ -1797,10 +2227,13 @@ export type Database = {
           due_at: string | null
           entity_id: string | null
           entity_type: string
+          escalation_level: number
           hospital_id: string
           id: string
+          last_reminded_at: string | null
           organization_id: string
           priority: string
+          rule_id: string | null
           status: string
           task_type: string
           team_id: string | null
@@ -1820,10 +2253,13 @@ export type Database = {
           due_at?: string | null
           entity_id?: string | null
           entity_type?: string
+          escalation_level?: number
           hospital_id: string
           id?: string
+          last_reminded_at?: string | null
           organization_id: string
           priority?: string
+          rule_id?: string | null
           status?: string
           task_type?: string
           team_id?: string | null
@@ -1843,10 +2279,13 @@ export type Database = {
           due_at?: string | null
           entity_id?: string | null
           entity_type?: string
+          escalation_level?: number
           hospital_id?: string
           id?: string
+          last_reminded_at?: string | null
           organization_id?: string
           priority?: string
+          rule_id?: string | null
           status?: string
           task_type?: string
           team_id?: string | null
@@ -2356,6 +2795,53 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      pick_reminder_rule: {
+        Args: {
+          _hosp: string
+          _ins: string
+          _key: string
+          _org: string
+          _tpa: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          escalation_level: number
+          hospital_id: string | null
+          id: string
+          insurer_id: string | null
+          is_active: boolean
+          name: string
+          notify_roles: string[]
+          organization_id: string | null
+          rule_key: string
+          threshold_hours: number
+          tpa_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reminder_rules"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      role_recipients: {
+        Args: { _hosp: string; _roles: string[] }
+        Returns: string[]
+      }
+      run_rcm_engine: { Args: never; Returns: Json }
+      sla_hours: {
+        Args: {
+          _default: number
+          _hosp: string
+          _ins: string
+          _process: string
+          _tpa: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
