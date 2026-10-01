@@ -86,6 +86,140 @@ export type Database = {
           },
         ]
       }
+      admissions: {
+        Row: {
+          admission_date: string
+          branch_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          department_id: string | null
+          diagnosis: string | null
+          discharge_date: string | null
+          employee_code: string | null
+          hospital_id: string
+          id: string
+          insurer_id: string | null
+          ip_number: string | null
+          member_id: string | null
+          organization_id: string
+          patient_id: string
+          policy_holder_name: string | null
+          policy_number: string | null
+          policy_type: string | null
+          status: string
+          tpa_id: string | null
+          treating_doctor: string | null
+          treatment: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_date: string
+          branch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          department_id?: string | null
+          diagnosis?: string | null
+          discharge_date?: string | null
+          employee_code?: string | null
+          hospital_id: string
+          id?: string
+          insurer_id?: string | null
+          ip_number?: string | null
+          member_id?: string | null
+          organization_id: string
+          patient_id: string
+          policy_holder_name?: string | null
+          policy_number?: string | null
+          policy_type?: string | null
+          status?: string
+          tpa_id?: string | null
+          treating_doctor?: string | null
+          treatment?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_date?: string
+          branch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          department_id?: string | null
+          diagnosis?: string | null
+          discharge_date?: string | null
+          employee_code?: string | null
+          hospital_id?: string
+          id?: string
+          insurer_id?: string | null
+          ip_number?: string | null
+          member_id?: string | null
+          organization_id?: string
+          patient_id?: string
+          policy_holder_name?: string | null
+          policy_number?: string | null
+          policy_type?: string | null
+          status?: string
+          tpa_id?: string | null
+          treating_doctor?: string | null
+          treatment?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admissions_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_insurer_id_fkey"
+            columns: ["insurer_id"]
+            isOneToOne: false
+            referencedRelation: "insurers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admissions_tpa_id_fkey"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -196,6 +330,397 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_couriers: {
+        Row: {
+          agency: string | null
+          claim_id: string
+          created_at: string
+          created_by: string | null
+          destination: string | null
+          dispatch_date: string | null
+          hospital_id: string
+          id: string
+          organization_id: string
+          provider: string | null
+          sender_name: string | null
+          tracking_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          agency?: string | null
+          claim_id: string
+          created_at?: string
+          created_by?: string | null
+          destination?: string | null
+          dispatch_date?: string | null
+          hospital_id: string
+          id?: string
+          organization_id: string
+          provider?: string | null
+          sender_name?: string | null
+          tracking_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          agency?: string | null
+          claim_id?: string
+          created_at?: string
+          created_by?: string | null
+          destination?: string | null
+          dispatch_date?: string | null
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+          provider?: string | null
+          sender_name?: string | null
+          tracking_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_couriers_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_couriers_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_notes: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body: string
+          claim_id: string
+          created_at: string
+          hospital_id: string
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body: string
+          claim_id: string
+          created_at?: string
+          hospital_id: string
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body?: string
+          claim_id?: string
+          created_at?: string
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_notes_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_notes_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_payments: {
+        Row: {
+          amount: number
+          claim_id: string
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          organization_id: string
+          payment_date: string | null
+          receipt_no: string | null
+          tds_amount: number
+          updated_at: string
+          updated_by: string | null
+          utr_number: string | null
+        }
+        Insert: {
+          amount?: number
+          claim_id: string
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          organization_id: string
+          payment_date?: string | null
+          receipt_no?: string | null
+          tds_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          utr_number?: string | null
+        }
+        Update: {
+          amount?: number
+          claim_id?: string
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+          payment_date?: string | null
+          receipt_no?: string | null
+          tds_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          utr_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_payments_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_payments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_status_history: {
+        Row: {
+          actor_id: string | null
+          actor_name: string | null
+          claim_id: string
+          created_at: string
+          from_status: string | null
+          hospital_id: string
+          id: string
+          note: string | null
+          organization_id: string
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_name?: string | null
+          claim_id: string
+          created_at?: string
+          from_status?: string | null
+          hospital_id: string
+          id?: string
+          note?: string | null
+          organization_id: string
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_name?: string | null
+          claim_id?: string
+          created_at?: string
+          from_status?: string | null
+          hospital_id?: string
+          id?: string
+          note?: string | null
+          organization_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_status_history_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_status_history_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claims: {
+        Row: {
+          admission_id: string
+          approved_amount: number
+          assigned_to: string | null
+          branch_id: string | null
+          case_ref_id: string | null
+          claim_code: string
+          claim_date: string
+          claimed_amount: number
+          copay: number
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          document_submitted_at: string | null
+          external_claim_no: string | null
+          hospital_discount: number
+          hospital_id: string
+          id: string
+          initial_claim_no: string | null
+          insurer_comments: string | null
+          invoice_number: string | null
+          last_status_at: string
+          organization_id: string
+          patient_id: string
+          patient_paid: number
+          payment_date: string | null
+          priority: string
+          readiness_gaps: Json
+          readiness_score: number
+          reconciled: boolean
+          settled_amount: number
+          short_payment: number | null
+          shortfall_amount: number
+          status: string
+          tds_amount: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_id: string
+          approved_amount?: number
+          assigned_to?: string | null
+          branch_id?: string | null
+          case_ref_id?: string | null
+          claim_code?: string
+          claim_date?: string
+          claimed_amount?: number
+          copay?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          document_submitted_at?: string | null
+          external_claim_no?: string | null
+          hospital_discount?: number
+          hospital_id: string
+          id?: string
+          initial_claim_no?: string | null
+          insurer_comments?: string | null
+          invoice_number?: string | null
+          last_status_at?: string
+          organization_id: string
+          patient_id: string
+          patient_paid?: number
+          payment_date?: string | null
+          priority?: string
+          readiness_gaps?: Json
+          readiness_score?: number
+          reconciled?: boolean
+          settled_amount?: number
+          short_payment?: number | null
+          shortfall_amount?: number
+          status?: string
+          tds_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_id?: string
+          approved_amount?: number
+          assigned_to?: string | null
+          branch_id?: string | null
+          case_ref_id?: string | null
+          claim_code?: string
+          claim_date?: string
+          claimed_amount?: number
+          copay?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          document_submitted_at?: string | null
+          external_claim_no?: string | null
+          hospital_discount?: number
+          hospital_id?: string
+          id?: string
+          initial_claim_no?: string | null
+          insurer_comments?: string | null
+          invoice_number?: string | null
+          last_status_at?: string
+          organization_id?: string
+          patient_id?: string
+          patient_paid?: number
+          payment_date?: string | null
+          priority?: string
+          readiness_gaps?: Json
+          readiness_score?: number
+          reconciled?: boolean
+          settled_amount?: number
+          short_payment?: number | null
+          shortfall_amount?: number
+          status?: string
+          tds_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claims_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "admissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -333,6 +858,7 @@ export type Database = {
           id: string
           name: string
           organization_id: string
+          rohini_id: string | null
           state: string | null
           status: string
           updated_at: string
@@ -350,6 +876,7 @@ export type Database = {
           id?: string
           name: string
           organization_id: string
+          rohini_id?: string | null
           state?: string | null
           status?: string
           updated_at?: string
@@ -367,6 +894,7 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string
+          rohini_id?: string | null
           state?: string | null
           status?: string
           updated_at?: string
@@ -385,6 +913,116 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_job_rows: {
+        Row: {
+          claim_id: string | null
+          created_at: string
+          errors: Json
+          id: string
+          job_id: string
+          organization_id: string
+          row_number: number
+          status: string
+        }
+        Insert: {
+          claim_id?: string | null
+          created_at?: string
+          errors?: Json
+          id?: string
+          job_id: string
+          organization_id: string
+          row_number: number
+          status: string
+        }
+        Update: {
+          claim_id?: string | null
+          created_at?: string
+          errors?: Json
+          id?: string
+          job_id?: string
+          organization_id?: string
+          row_number?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_job_rows_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_job_rows_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          created_rows: number
+          error_rows: number
+          file_name: string
+          hospital_id: string | null
+          id: string
+          import_type: string
+          organization_id: string
+          status: string
+          total_rows: number
+          updated_at: string
+          updated_rows: number
+          valid_rows: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_rows?: number
+          error_rows?: number
+          file_name: string
+          hospital_id?: string | null
+          id?: string
+          import_type?: string
+          organization_id: string
+          status?: string
+          total_rows?: number
+          updated_at?: string
+          updated_rows?: number
+          valid_rows?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_rows?: number
+          error_rows?: number
+          file_name?: string
+          hospital_id?: string | null
+          id?: string
+          import_type?: string
+          organization_id?: string
+          status?: string
+          total_rows?: number
+          updated_at?: string
+          updated_rows?: number
+          valid_rows?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_jobs_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
         ]
@@ -781,6 +1419,72 @@ export type Database = {
         }
         Relationships: []
       }
+      patients: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date_of_birth: string | null
+          deleted_at: string | null
+          full_name: string
+          gender: string | null
+          hospital_id: string
+          id: string
+          member_id: string | null
+          organization_id: string
+          phone: string | null
+          uhid: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          deleted_at?: string | null
+          full_name: string
+          gender?: string | null
+          hospital_id: string
+          id?: string
+          member_id?: string | null
+          organization_id: string
+          phone?: string | null
+          uhid?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          deleted_at?: string | null
+          full_name?: string
+          gender?: string | null
+          hospital_id?: string
+          id?: string
+          member_id?: string | null
+          organization_id?: string
+          phone?: string | null
+          uhid?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           action: string
@@ -801,6 +1505,85 @@ export type Database = {
           module?: string
         }
         Relationships: []
+      }
+      preauths: {
+        Row: {
+          admission_id: string
+          approved_amount: number | null
+          created_at: string
+          created_by: string | null
+          decided_at: string | null
+          hospital_id: string
+          id: string
+          kind: string
+          organization_id: string
+          reference_no: string | null
+          remarks: string | null
+          requested_amount: number
+          requested_at: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_id: string
+          approved_amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          hospital_id: string
+          id?: string
+          kind?: string
+          organization_id: string
+          reference_no?: string | null
+          remarks?: string | null
+          requested_amount?: number
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_id?: string
+          approved_amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          hospital_id?: string
+          id?: string
+          kind?: string
+          organization_id?: string
+          reference_no?: string | null
+          remarks?: string | null
+          requested_amount?: number
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preauths_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "admissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preauths_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preauths_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -997,6 +1780,114 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          amount_at_stake: number
+          assigned_to: string | null
+          branch_id: string | null
+          claim_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_at: string | null
+          entity_id: string | null
+          entity_type: string
+          hospital_id: string
+          id: string
+          organization_id: string
+          priority: string
+          status: string
+          task_type: string
+          team_id: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount_at_stake?: number
+          assigned_to?: string | null
+          branch_id?: string | null
+          claim_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          hospital_id: string
+          id?: string
+          organization_id: string
+          priority?: string
+          status?: string
+          task_type?: string
+          team_id?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount_at_stake?: number
+          assigned_to?: string | null
+          branch_id?: string | null
+          claim_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+          priority?: string
+          status?: string
+          task_type?: string
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           },
         ]
