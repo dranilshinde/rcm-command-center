@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Payer contact routing lives in the database (pick_spoc + insert triggers on tasks/escalations) so the hourly engine and manual flows share one rule.
