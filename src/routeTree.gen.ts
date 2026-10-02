@@ -36,6 +36,7 @@ import { Route as AuthenticatedClaimsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedClaimsClaimIdRouteImport } from './routes/_authenticated/claims.$claimId'
 import { Route as AuthenticatedHospitalsIndexRouteImport } from './routes/_authenticated/hospitals.index'
 import { Route as AuthenticatedHospitalsHospitalIdRouteImport } from './routes/_authenticated/hospitals.$hospitalId'
+import { Route as AuthenticatedPayersKindPayerIdRouteImport } from './routes/_authenticated/payers.$kind.$payerId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -179,6 +180,12 @@ const AuthenticatedHospitalsHospitalIdRoute =
     path: '/hospitals/$hospitalId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPayersKindPayerIdRoute =
+  AuthenticatedPayersKindPayerIdRouteImport.update({
+    id: '/$kind/$payerId',
+    path: '/$kind/$payerId',
+    getParentRoute: () => AuthenticatedPayersRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -195,7 +202,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/patients': typeof AuthenticatedPatientsRoute
-  '/payers': typeof AuthenticatedPayersRoute
+  '/payers': typeof AuthenticatedPayersRouteWithChildren
   '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
   '/roles': typeof AuthenticatedRolesRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/claims/': typeof AuthenticatedClaimsIndexRoute
   '/hospitals/': typeof AuthenticatedHospitalsIndexRoute
+  '/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -223,7 +231,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/patients': typeof AuthenticatedPatientsRoute
-  '/payers': typeof AuthenticatedPayersRoute
+  '/payers': typeof AuthenticatedPayersRouteWithChildren
   '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
   '/roles': typeof AuthenticatedRolesRoute
@@ -235,6 +243,7 @@ export interface FileRoutesByTo {
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/claims': typeof AuthenticatedClaimsIndexRoute
   '/hospitals': typeof AuthenticatedHospitalsIndexRoute
+  '/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -253,7 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
-  '/_authenticated/payers': typeof AuthenticatedPayersRoute
+  '/_authenticated/payers': typeof AuthenticatedPayersRouteWithChildren
   '/_authenticated/preauth': typeof AuthenticatedPreauthRoute
   '/_authenticated/queries': typeof AuthenticatedQueriesRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
@@ -265,6 +274,7 @@ export interface FileRoutesById {
   '/_authenticated/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
   '/_authenticated/claims/': typeof AuthenticatedClaimsIndexRoute
   '/_authenticated/hospitals/': typeof AuthenticatedHospitalsIndexRoute
+  '/_authenticated/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/hospitals/$hospitalId'
     | '/claims/'
     | '/hospitals/'
+    | '/payers/$kind/$payerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/hospitals/$hospitalId'
     | '/claims'
     | '/hospitals'
+    | '/payers/$kind/$payerId'
   id:
     | '__root__'
     | '/'
@@ -352,6 +364,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hospitals/$hospitalId'
     | '/_authenticated/claims/'
     | '/_authenticated/hospitals/'
+    | '/_authenticated/payers/$kind/$payerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -551,8 +564,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHospitalsHospitalIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/payers/$kind/$payerId': {
+      id: '/_authenticated/payers/$kind/$payerId'
+      path: '/$kind/$payerId'
+      fullPath: '/payers/$kind/$payerId'
+      preLoaderRoute: typeof AuthenticatedPayersKindPayerIdRouteImport
+      parentRoute: typeof AuthenticatedPayersRoute
+    }
   }
 }
+
+interface AuthenticatedPayersRouteChildren {
+  AuthenticatedPayersKindPayerIdRoute: typeof AuthenticatedPayersKindPayerIdRoute
+}
+
+const AuthenticatedPayersRouteChildren: AuthenticatedPayersRouteChildren = {
+  AuthenticatedPayersKindPayerIdRoute: AuthenticatedPayersKindPayerIdRoute,
+}
+
+const AuthenticatedPayersRouteWithChildren =
+  AuthenticatedPayersRoute._addFileChildren(AuthenticatedPayersRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdmissionsRoute: typeof AuthenticatedAdmissionsRoute
@@ -567,7 +598,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
-  AuthenticatedPayersRoute: typeof AuthenticatedPayersRoute
+  AuthenticatedPayersRoute: typeof AuthenticatedPayersRouteWithChildren
   AuthenticatedPreauthRoute: typeof AuthenticatedPreauthRoute
   AuthenticatedQueriesRoute: typeof AuthenticatedQueriesRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
@@ -594,7 +625,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
-  AuthenticatedPayersRoute: AuthenticatedPayersRoute,
+  AuthenticatedPayersRoute: AuthenticatedPayersRouteWithChildren,
   AuthenticatedPreauthRoute: AuthenticatedPreauthRoute,
   AuthenticatedQueriesRoute: AuthenticatedQueriesRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
