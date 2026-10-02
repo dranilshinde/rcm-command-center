@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.pick_spoc(uuid,uuid,uuid,integer) FROM authenticated;

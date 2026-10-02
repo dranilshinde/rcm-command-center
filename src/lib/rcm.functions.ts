@@ -453,16 +453,16 @@ export const listPayers = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const sb = context.supabase;
     const [{ data: insurers }, { data: tpas }, { data: spocs }] = await Promise.all([
-      sb.from("insurers").select("id, name, payer_code, insurer_type, portal_url, support_email, status").is("deleted_at", null).order("name"),
-      sb.from("tpas").select("id, name, tpa_code, portal_url, support_email, status").is("deleted_at", null).order("name"),
-      sb.from("tpa_spocs").select("id, name, designation, email, phone, location, escalation_level, status, tpa_id, hospital_id, tpas(name), hospitals(name)").order("name"),
+      sb.from("insurers").select("id, name, payer_code, insurer_type, portal_url, support_email, support_phone, escalation_email, relationship_notes, preferred_channel, target_payment_days, status").is("deleted_at", null).order("name"),
+      sb.from("tpas").select("id, name, tpa_code, portal_url, support_email, support_phone, escalation_email, relationship_notes, preferred_channel, target_payment_days, status").is("deleted_at", null).order("name"),
+      sb.from("tpa_spocs").select("id, name, designation, email, phone, location, escalation_level, status, tpa_id, insurer_id, hospital_id, tpas(name), insurers(name), hospitals(name)").order("name"),
     ]);
     return {
       insurers: insurers ?? [],
       tpas: tpas ?? [],
       spocs: (spocs ?? []).map((s) => ({
         ...s,
-        tpa_name: (s.tpas as unknown as { name: string } | null)?.name ?? "—",
+        tpa_name: (s.tpas as unknown as { name: string } | null)?.name ?? (s.insurers as unknown as { name: string } | null)?.name ?? "—",
         hospital_name: (s.hospitals as unknown as { name: string } | null)?.name ?? "All hospitals",
       })),
     };
