@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/payers/$kind/$payerId")({
       { property: "og:description", content: "Everything about one insurer or TPA in one place." },
     ],
   }),
-  errorComponent: ({ error }) => <EmptyState title="Could not load this payer" description={error.message} />,
+  errorComponent: ({ error }) => <EmptyState title="Could not load this payer" description={(error as Error).message} />,
   notFoundComponent: () => <EmptyState title="Payer not found" />,
   component: Payer360,
 });
@@ -70,7 +70,7 @@ function Payer360() {
         <StatCard label="Collection rate" value={pct(kp.collectionRate)} hint={`${inr(kp.settledAmt)} of ${inr(kp.submittedAmt)}`} />
         <StatCard label="Avg days to pay" value={kp.avgDaysToPay == null ? "—" : Math.round(kp.avgDaysToPay)} tone={slow ? "risk" : "default"} hint={p.target_payment_days ? `Target ${p.target_payment_days}` : "No target set"} />
         <StatCard label="Denial rate" value={pct(kp.denialRate)} />
-        <StatCard label="Query rate" value={pct(kp.queryRate)} hint={kp.avgQueryReplyHrs != null ? `We reply in ${hrs(kp.avgQueryReplyHrs)}` : undefined} />
+        <StatCard label="Query rate" value={pct(kp.queryRate)} hint={kp.avgQueryReplyHrs != null ? `We reply in ${hrs(kp.avgQueryReplyHrs)}` : "No replies yet"} />
         <StatCard label="Short paid" value={inr(kp.shortPaid)} />
         <StatCard label="Escalated claims" value={kp.escalated} tone={kp.escalated ? "risk" : "default"} />
         <StatCard label="Commitments kept" value={pct(kp.commitmentsKeptPct)} />
@@ -165,7 +165,7 @@ function Payer360() {
                   <td className={td}><Link to="/claims/$claimId" params={{ claimId: c.claim_id }} className="tnum text-primary hover:underline">{c.claims?.claim_code}</Link></td>
                   <td className={`${td} tnum`}>{c.commitment_amount != null ? inr(c.commitment_amount) : "—"}</td>
                   <td className={`${td} text-muted-foreground`}>{c.contact_name ?? "—"}</td>
-                  <td className={td}><Chip value={c.state === "kept" ? "completed" : c.state === "missed" ? "denied" : c.state === "late" ? "short_paid" : "waiting"} label={{ kept: "Kept", missed: "Missed", late: "Paid late", upcoming: "Upcoming" }[c.state as string]} /></td>
+                  <td className={td}><Chip value={c.state === "kept" ? "completed" : c.state === "missed" ? "denied" : c.state === "late" ? "short_paid" : "waiting"} label={{ kept: "Kept", missed: "Missed", late: "Paid late", upcoming: "Upcoming" }[c.state as string] ?? "—"} /></td>
                 </tr>
               ))}
             </DataTable>
