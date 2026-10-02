@@ -994,6 +994,7 @@ export type Database = {
           resolved_at: string | null
           resolved_by: string | null
           rule_id: string | null
+          spoc_id: string | null
           status: string
           task_id: string | null
           updated_at: string
@@ -1012,6 +1013,7 @@ export type Database = {
           resolved_at?: string | null
           resolved_by?: string | null
           rule_id?: string | null
+          spoc_id?: string | null
           status?: string
           task_id?: string | null
           updated_at?: string
@@ -1030,6 +1032,7 @@ export type Database = {
           resolved_at?: string | null
           resolved_by?: string | null
           rule_id?: string | null
+          spoc_id?: string | null
           status?: string
           task_id?: string | null
           updated_at?: string
@@ -1054,6 +1057,13 @@ export type Database = {
             columns: ["rule_id"]
             isOneToOne: false
             referencedRelation: "reminder_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_spoc_id_fkey"
+            columns: ["spoc_id"]
+            isOneToOne: false
+            referencedRelation: "tpa_spocs"
             referencedColumns: ["id"]
           },
           {
@@ -1302,15 +1312,19 @@ export type Database = {
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          escalation_email: string | null
           id: string
           insurer_type: string
           name: string
           organization_id: string
           payer_code: string
           portal_url: string | null
+          preferred_channel: string
+          relationship_notes: string | null
           status: string
           support_email: string | null
           support_phone: string | null
+          target_payment_days: number | null
           updated_at: string
           updated_by: string | null
         }
@@ -1318,15 +1332,19 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          escalation_email?: string | null
           id?: string
           insurer_type?: string
           name: string
           organization_id: string
           payer_code: string
           portal_url?: string | null
+          preferred_channel?: string
+          relationship_notes?: string | null
           status?: string
           support_email?: string | null
           support_phone?: string | null
+          target_payment_days?: number | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -1334,15 +1352,19 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          escalation_email?: string | null
           id?: string
           insurer_type?: string
           name?: string
           organization_id?: string
           payer_code?: string
           portal_url?: string | null
+          preferred_channel?: string
+          relationship_notes?: string | null
           status?: string
           support_email?: string | null
           support_phone?: string | null
+          target_payment_days?: number | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -2234,6 +2256,7 @@ export type Database = {
           organization_id: string
           priority: string
           rule_id: string | null
+          spoc_id: string | null
           status: string
           task_type: string
           team_id: string | null
@@ -2260,6 +2283,7 @@ export type Database = {
           organization_id: string
           priority?: string
           rule_id?: string | null
+          spoc_id?: string | null
           status?: string
           task_type?: string
           team_id?: string | null
@@ -2286,6 +2310,7 @@ export type Database = {
           organization_id?: string
           priority?: string
           rule_id?: string | null
+          spoc_id?: string | null
           status?: string
           task_type?: string
           team_id?: string | null
@@ -2320,6 +2345,13 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_spoc_id_fkey"
+            columns: ["spoc_id"]
+            isOneToOne: false
+            referencedRelation: "tpa_spocs"
             referencedColumns: ["id"]
           },
           {
@@ -2577,13 +2609,17 @@ export type Database = {
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          escalation_email: string | null
           id: string
           name: string
           organization_id: string
           portal_url: string | null
+          preferred_channel: string
+          relationship_notes: string | null
           status: string
           support_email: string | null
           support_phone: string | null
+          target_payment_days: number | null
           tpa_code: string
           updated_at: string
           updated_by: string | null
@@ -2592,13 +2628,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          escalation_email?: string | null
           id?: string
           name: string
           organization_id: string
           portal_url?: string | null
+          preferred_channel?: string
+          relationship_notes?: string | null
           status?: string
           support_email?: string | null
           support_phone?: string | null
+          target_payment_days?: number | null
           tpa_code: string
           updated_at?: string
           updated_by?: string | null
@@ -2607,13 +2647,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          escalation_email?: string | null
           id?: string
           name?: string
           organization_id?: string
           portal_url?: string | null
+          preferred_channel?: string
+          relationship_notes?: string | null
           status?: string
           support_email?: string | null
           support_phone?: string | null
+          target_payment_days?: number | null
           tpa_code?: string
           updated_at?: string
           updated_by?: string | null
@@ -2826,6 +2870,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      pick_spoc: {
+        Args: { _hosp: string; _ins: string; _level: number; _tpa: string }
+        Returns: string
       }
       role_recipients: {
         Args: { _hosp: string; _roles: string[] }
