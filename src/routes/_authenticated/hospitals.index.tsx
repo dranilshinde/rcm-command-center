@@ -137,7 +137,8 @@ function NewHospitalDialog() {
 
   async function submit() {
     if (!form.organization_id || !form.name || !form.code) {
-      toast.error("Organisation, name and code are required.");
+      const missing = [!form.organization_id && "organisation", !form.name && "name", !form.code && "code"].filter(Boolean).join(", ");
+      toast.error(`Please fill in: ${missing}.`);
       return;
     }
     setBusy(true);
