@@ -77,7 +77,7 @@ function Denials() {
                   <td className={td}>{DENIAL_CATEGORIES[d.category] ?? d.category}</td>
                   <td className={`${td} tnum`}>{inr(d.amount)}</td>
                   <td className={`${td} tnum`}>{inr(d.recovered_amount)}</td>
-                  <td className={td}><Chip value={STATUS_CHIP[d.status] ?? "open"} label={STATUS_LABEL[d.status]} /></td>
+                  <td className={td}><Chip value={STATUS_CHIP[d.status] ?? "open"} label={STATUS_LABEL[d.status] ?? d.status} /></td>
                   <td className={`${td} tnum`}>{fmtDate(d.created_at)}</td>
                   <td className={`${td} text-right`}><DenialDialog d={d} /></td>
                 </tr>

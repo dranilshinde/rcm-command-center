@@ -17,7 +17,7 @@ import { hospitalsQuery } from "@/lib/queries";
 import { importReceipts, listReceipts, matchCandidates, matchReceipt, runAutoMatch, setReceiptStatus } from "@/lib/revenue.functions";
 import { cn } from "@/lib/utils";
 
-const receiptsQuery = (p: { status?: string; page: number }) =>
+const receiptsQuery = (p: { status?: string | undefined; page: number }) =>
   queryOptions({ queryKey: ["receipts", p], queryFn: () => listReceipts({ data: p }) });
 
 export const Route = createFileRoute("/_authenticated/reconciliation")({

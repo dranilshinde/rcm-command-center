@@ -9,7 +9,7 @@ import { inr } from "@/lib/claims-domain";
 import { getArOverview } from "@/lib/revenue.functions";
 import { cn } from "@/lib/utils";
 
-const arQuery = (p: { bucket?: number; payer?: string; page?: number }) =>
+const arQuery = (p: { bucket?: number | undefined; payer?: string | undefined; page?: number }) =>
   queryOptions({ queryKey: ["ar", p], queryFn: () => getArOverview({ data: p }) });
 
 export const Route = createFileRoute("/_authenticated/ar")({

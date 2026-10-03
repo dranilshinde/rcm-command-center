@@ -18,7 +18,7 @@ const bucketOf = (d: number) => AR_BUCKETS.findIndex(([a, b]) => d >= a && d <= 
 
 export const getArOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { bucket?: number; payer?: string; page?: number }) => d)
+  .inputValidator((d: { bucket?: number | undefined; payer?: string | undefined; page?: number }) => d)
   .handler(async ({ context, data }) => {
     const { data: rows, error } = await context.supabase.from("claims")
       .select("id, claim_code, status, claim_date, document_submitted_at, claimed_amount, approved_amount, settled_amount, tds_amount, escalation_level, next_followup_at, hospitals(name), patients(full_name), admissions(insurers(name), tpas(name)), profiles:assigned_to(full_name)")
@@ -226,7 +226,7 @@ export const runAutoMatch = createServerFn({ method: "POST" })
 
 export const listReceipts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { status?: string; page?: number }) => d)
+  .inputValidator((d: { status?: string | undefined; page?: number }) => d)
   .handler(async ({ context, data }) => {
     const sb = context.supabase;
     const page = Math.max(1, data.page ?? 1);
