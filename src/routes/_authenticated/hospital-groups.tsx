@@ -90,7 +90,7 @@ function HospitalGroups() {
 
 function NewGroupDialog({ organizations }: { organizations: { id: string; name: string }[] }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ organization_id: organizations.length === 1 ? organizations[0].id : "", name: "", code: "", headquarters_city: "" });
+  const [form, setForm] = useState({ organization_id: organizations.length === 1 ? organizations[0]!.id : "", name: "", code: "", headquarters_city: "" });
   const [busy, setBusy] = useState(false);
   const create = useServerFn(createHospitalGroup);
   const qc = useQueryClient();
