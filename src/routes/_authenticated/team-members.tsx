@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/team-members")({
   component: TeamMembers,
 });
 
-type Row = { full_name: string; email: string; roleKey: string; error?: string };
+type Row = { full_name: string; email: string; roleKey: string; error?: string | undefined };
 
 function TeamMembers() {
   const { data: session } = useSuspenseQuery(sessionQuery);
@@ -43,7 +43,7 @@ function TeamMembers() {
   const [defaultRole, setDefaultRole] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [results, setResults] = useState<{ email: string; ok: boolean; reason?: string }[] | null>(null);
+  const [results, setResults] = useState<{ email: string; ok: boolean; reason?: string | undefined }[] | null>(null);
   const invite = useServerFn(inviteTeamMembers);
   const listMembers = useServerFn(listHospitalAdmins);
   const qc = useQueryClient();
