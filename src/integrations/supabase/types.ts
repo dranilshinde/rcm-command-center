@@ -1309,6 +1309,7 @@ export type Database = {
       }
       insurers: {
         Row: {
+          aliases: string[]
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -1329,6 +1330,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          aliases?: string[]
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -1349,6 +1351,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          aliases?: string[]
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -2606,6 +2609,7 @@ export type Database = {
       }
       tpas: {
         Row: {
+          aliases: string[]
           created_at: string
           created_by: string | null
           deleted_at: string | null
@@ -2625,6 +2629,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          aliases?: string[]
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
@@ -2644,6 +2649,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          aliases?: string[]
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
