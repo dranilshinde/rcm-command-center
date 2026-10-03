@@ -49,6 +49,7 @@ const NAV: NavSection[] = [
       { label: "Onboarding", to: "/onboarding", icon: ClipboardList },
       { label: "Payers & TPAs", to: "/payers", icon: LayoutGrid },
       { label: "Users & Teams", to: "/users", icon: Users },
+      { label: "Team Members", to: "/team-members", icon: Users },
       { label: "Admin Invitations", to: "/invitations", icon: Mail },
     ],
   },
