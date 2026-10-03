@@ -268,6 +268,104 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_receipts: {
+        Row: {
+          amount: number
+          claim_id: string | null
+          claim_payment_id: string | null
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          match_method: string | null
+          match_status: string
+          matched_at: string | null
+          matched_by: string | null
+          narration: string | null
+          organization_id: string
+          payer_name: string | null
+          receipt_date: string
+          source_file: string | null
+          updated_at: string
+          updated_by: string | null
+          utr_number: string | null
+          variance: number | null
+        }
+        Insert: {
+          amount: number
+          claim_id?: string | null
+          claim_payment_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          match_method?: string | null
+          match_status?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          narration?: string | null
+          organization_id: string
+          payer_name?: string | null
+          receipt_date: string
+          source_file?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          utr_number?: string | null
+          variance?: number | null
+        }
+        Update: {
+          amount?: number
+          claim_id?: string | null
+          claim_payment_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          match_method?: string | null
+          match_status?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          narration?: string | null
+          organization_id?: string
+          payer_name?: string | null
+          receipt_date?: string
+          source_file?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          utr_number?: string | null
+          variance?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_receipts_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_receipts_claim_payment_id_fkey"
+            columns: ["claim_payment_id"]
+            isOneToOne: false
+            referencedRelation: "claim_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_receipts_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_receipts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branches: {
         Row: {
           address: string | null
@@ -881,6 +979,98 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      denials: {
+        Row: {
+          amount: number
+          appeal_submitted_at: string | null
+          category: string
+          claim_id: string
+          closed_at: string | null
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          kind: string
+          organization_id: string
+          owner_id: string | null
+          reason: string | null
+          recovered_amount: number
+          resolution_note: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount?: number
+          appeal_submitted_at?: string | null
+          category?: string
+          claim_id: string
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          kind?: string
+          organization_id: string
+          owner_id?: string | null
+          reason?: string | null
+          recovered_amount?: number
+          resolution_note?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          appeal_submitted_at?: string | null
+          category?: string
+          claim_id?: string
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          kind?: string
+          organization_id?: string
+          owner_id?: string | null
+          reason?: string | null
+          recovered_amount?: number
+          resolution_note?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "denials_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "denials_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "denials_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "denials_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

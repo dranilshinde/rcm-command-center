@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Payer contact routing lives in the database (pick_spoc + insert triggers on tasks/escalations) so the hourly engine and manual flows share one rule.
+
+- Denial/short-payment recovery records are opened by a database trigger on claim status so every path (manual, payment, import, reconciliation) creates them.

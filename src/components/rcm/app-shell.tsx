@@ -34,9 +34,10 @@ const NAV: NavSection[] = [
   {
     title: "Revenue",
     items: [
-      { label: "AR Management", icon: Wallet, phase: 5 },
-      { label: "Settlements", icon: Receipt, phase: 5 },
-      { label: "Reconciliation", icon: Landmark, phase: 5 },
+      { label: "AR Management", to: "/ar", icon: Wallet },
+      { label: "Settlements", to: "/settlements", icon: Receipt },
+      { label: "Reconciliation", to: "/reconciliation", icon: Landmark },
+      { label: "Denials & Recovery", to: "/denials", icon: ShieldCheck },
       { label: "Analytics", icon: LineChart, phase: 7 },
     ],
   },
