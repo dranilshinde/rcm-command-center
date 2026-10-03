@@ -161,6 +161,40 @@ export const addHospitalAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ---------------------------------------------------------- team members */
+
+export const inviteTeamMembers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      hospitalId: z.string().uuid(),
+      redirectTo: z.string().url(),
+      people: z.array(z.object({
+        full_name: name,
+        email: z.string().trim().toLowerCase().email("Enter a valid email").max(255),
+        roleKey: z.string().trim().min(2).max(60),
+      })).min(1, "Add at least one person").max(200, "Invite up to 200 people at a time"),
+    }).parse(i))
+  .handler(async ({ context, data }) => {
+    await assertCanManageUsers(context, data.hospitalId);
+    const { data: h } = await context.supabase.from("hospitals").select("organization_id").eq("id", data.hospitalId).single();
+    if (!h) throw new Error("This hospital is not available to you.");
+    const { data: roles } = await context.supabase.from("roles").select("key, role_level")
+      .in("role_level", ["hospital", "branch", "team"]);
+    const allowed = new Set((roles ?? []).map((r: { key: string }) => r.key));
+    const { inviteHospitalAdmin } = await import("./invite.server");
+    const results: { email: string; ok: boolean; reason?: string }[] = [];
+    for (const p of data.people) {
+      if (!allowed.has(p.roleKey)) { results.push({ email: p.email, ok: false, reason: `${p.email}: that role cannot be given to hospital staff.` }); continue; }
+      const r = await inviteHospitalAdmin({
+        organizationId: h.organization_id, hospitalId: data.hospitalId, email: p.email,
+        fullName: p.full_name, roleKey: p.roleKey, invitedBy: context.userId, redirectTo: data.redirectTo,
+      });
+      results.push(r.ok ? { email: p.email, ok: true } : { email: p.email, ok: false, reason: r.reason });
+    }
+    return results;
+  });
+
 /* ----------------------------------------------------------- invitations */
 
 export const listInvitations = createServerFn({ method: "GET" })
