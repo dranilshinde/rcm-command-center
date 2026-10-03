@@ -637,8 +637,12 @@ export const importClaims = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
     fileName: z.string().max(255),
     commit: z.boolean(),
-    rows: z.array(rowSchema).min(1).max(2000),
+    rows: z.array(rowSchema).min(1).max(500),
     parseErrors: z.record(z.string(), z.array(z.string())).optional(),
+    // Large files are sent in chunks that share one import job.
+    jobId: z.string().uuid().nullable().optional(),
+    last: z.boolean().optional(),
+    totals: z.object({ total: z.number(), valid: z.number(), errors: z.number() }).optional(),
   }).parse(d))
   .handler(async ({ context, data }) => {
     const sb = context.supabase;
@@ -666,6 +670,14 @@ export const importClaims = createServerFn({ method: "POST" })
     };
     const looksLikeTpa = (n: string) => payerTokens(n).includes("tpa");
 
+    // Batch-load existing claims for this chunk instead of one lookup per row.
+    const existing = new Map<string, string>();
+    const byHosp = new Map<string, string[]>();
+    for (const r of rows) { const h = findHospital(r); if (h && r.claim_number) byHosp.set(h.id, [...(byHosp.get(h.id) ?? []), r.claim_number]); }
+    for (const [hid, nums] of byHosp) for (let i = 0; i < nums.length; i += 150) {
+      const { data: ex } = await sb.from("claims").select("id, external_claim_no").eq("hospital_id", hid).in("external_claim_no", nums.slice(i, i + 150));
+      for (const c of ex ?? []) existing.set(`${hid}|${c.external_claim_no}`, c.id);
+    }
     const seen = new Set<string>();
     const results: RowResult[] = [];
     const plans: { r: ImportRow; hospital: NonNullable<ReturnType<typeof findHospital>>; existingId: string | null; mapped: { status: string; reconciled: boolean } }[] = [];
@@ -696,8 +708,7 @@ export const importClaims = createServerFn({ method: "POST" })
       }
       let existingId: string | null = null;
       if (!errors.length && hospital) {
-        const { data: ex } = await sb.from("claims").select("id").eq("hospital_id", hospital.id).eq("external_claim_no", r.claim_number!).maybeSingle();
-        existingId = ex?.id ?? null;
+        existingId = existing.get(`${hospital.id}|${r.claim_number}`) ?? null;
       }
       const label = `${r.claim_number ?? "—"} · ${r.patient_name ?? "—"}`;
       results.push({ row: r.row, status: errors.length ? "error" : existingId ? "update" : "new", errors, warnings, label });
@@ -712,15 +723,24 @@ export const importClaims = createServerFn({ method: "POST" })
       updateCount: results.filter((x) => x.status === "update").length,
     };
     if (!data.commit) return { committed: false as const, jobId: null, summary, results };
-    if (!plans.length) throw new Error("There are no valid rows to import. Fix the errors and upload again.");
+    if (!plans.length && !data.jobId) throw new Error("There are no valid rows to import. Fix the errors and upload again.");
 
-    const orgId = plans[0]!.hospital.organization_id;
-    const singleHospital = plans.every((p) => p.hospital.id === plans[0]!.hospital.id) ? plans[0]!.hospital.id : null;
-    const { data: job, error: je } = await sb.from("import_jobs").insert({
-      organization_id: orgId, hospital_id: singleHospital, file_name: data.fileName, status: "running",
-      total_rows: summary.total, valid_rows: summary.valid, error_rows: summary.errors, created_by: context.userId,
-    }).select("id").single();
-    if (je) throw new Error(friendly(je.message, "import job"));
+    let job: { id: string; organization_id: string; created_rows: number; updated_rows: number; error_rows: number };
+    if (data.jobId) {
+      const { data: j, error } = await sb.from("import_jobs").select("id, organization_id, created_rows, updated_rows, error_rows").eq("id", data.jobId).single();
+      if (error || !j) throw new Error("This import could not be continued. Please upload the file again.");
+      job = j as typeof job;
+    } else {
+      const t = data.totals ?? summary;
+      const singleHospital = plans.every((p) => p.hospital.id === plans[0]!.hospital.id) ? plans[0]!.hospital.id : null;
+      const { data: j, error: je } = await sb.from("import_jobs").insert({
+        organization_id: plans[0]!.hospital.organization_id, hospital_id: singleHospital, file_name: data.fileName, status: "running",
+        total_rows: t.total, valid_rows: t.valid, error_rows: 0, created_by: context.userId,
+      }).select("id, organization_id, created_rows, updated_rows, error_rows").single();
+      if (je) throw new Error(friendly(je.message, "import job"));
+      job = j as typeof job;
+    }
+    const orgId = job.organization_id;
 
     const name = await actorName(sb, context.userId);
     let created = 0, updated = 0;
@@ -748,11 +768,20 @@ export const importClaims = createServerFn({ method: "POST" })
     };
     const jobRows: { job_id: string; organization_id: string; row_number: number; status: string; errors: string[]; claim_id: string | null }[] = [];
 
-    for (const { r, hospital, existingId, mapped } of plans) {
+    // Payers are resolved one at a time first (avoids creating duplicates), then rows run in parallel.
+    const payerFor = new Map<number, { insurer: Payer | null; tpa: Payer | null }>();
+    for (const { r, hospital } of plans) {
+      const org = hospital.organization_id;
       try {
-        const org = hospital.organization_id;
         const insurer = await ensurePayer("insurer", r.insurer_name, org) ?? (r.tpa_name && !looksLikeTpa(r.tpa_name) && !matchPayer(inOrg(tpaList, org), r.tpa_name) ? await ensurePayer("insurer", r.tpa_name, org) : null);
         const tpa = r.tpa_name && (looksLikeTpa(r.tpa_name) || matchPayer(inOrg(tpaList, org), r.tpa_name)) ? await ensurePayer("tpa", r.tpa_name, org) : null;
+        payerFor.set(r.row, { insurer, tpa });
+      } catch { payerFor.set(r.row, { insurer: null, tpa: null }); }
+    }
+    const processRow = async ({ r, hospital, existingId, mapped }: (typeof plans)[number]) => {
+      try {
+        const org = hospital.organization_id;
+        const { insurer, tpa } = payerFor.get(r.row)!;
         // patient
         let patientId: string | null = null;
         if (r.uhid) patientId = (await sb.from("patients").select("id").eq("hospital_id", hospital.id).eq("uhid", r.uhid).maybeSingle()).data?.id ?? null;
@@ -858,15 +887,19 @@ export const importClaims = createServerFn({ method: "POST" })
         if (res) { res.status = "error"; res.errors.push(msg); }
         jobRows.push({ job_id: job.id, organization_id: orgId, row_number: r.row, status: "failed", errors: [msg], claim_id: null });
       }
-    }
+    };
+    for (let i = 0; i < plans.length; i += 5) await Promise.all(plans.slice(i, i + 5).map(processRow));
     for (const res of results.filter((x) => x.status === "error" && !jobRows.some((j) => j.row_number === x.row)))
       jobRows.push({ job_id: job.id, organization_id: orgId, row_number: res.row, status: "rejected", errors: res.errors, claim_id: null });
     for (let i = 0; i < jobRows.length; i += 500) await sb.from("import_job_rows").insert(jobRows.slice(i, i + 500));
 
     const failed = jobRows.filter((j) => j.status !== "created" && j.status !== "updated").length;
+    const done = data.last ?? !data.jobId;
+    const totalFailed = job.error_rows + failed;
     await sb.from("import_jobs").update({
-      status: failed ? "completed_with_errors" : "completed", created_rows: created, updated_rows: updated,
-      error_rows: failed, completed_at: new Date().toISOString(),
+      status: done ? (totalFailed ? "completed_with_errors" : "completed") : "running",
+      created_rows: job.created_rows + created, updated_rows: job.updated_rows + updated,
+      error_rows: totalFailed, completed_at: done ? new Date().toISOString() : null,
     }).eq("id", job.id);
     return { committed: true as const, jobId: job.id as string, summary: { ...summary, created, updated, failed }, results };
   });
