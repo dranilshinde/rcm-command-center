@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { groupsQuery, organizationsQuery, sessionQuery } from "@/lib/queries";
+import { NewOrganizationDialog } from "@/components/rcm/new-organization-dialog";
 import { runOnboarding, type OnboardingResult } from "@/lib/onboarding.functions";
 import { cn } from "@/lib/utils";
 
@@ -186,6 +187,9 @@ function Onboarding() {
 
         {step === 0 && (
           <div className="grid gap-4 sm:grid-cols-2">
+            {session.isSuperAdmin ? (
+              <div className="sm:col-span-2"><NewOrganizationDialog onCreated={(id) => { setOrgId(id); setGroupId(""); }} /></div>
+            ) : null}
             <Field label="Customer organisation" full>
               <Select value={orgId} onValueChange={(v) => { setOrgId(v); setGroupId(""); }}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>

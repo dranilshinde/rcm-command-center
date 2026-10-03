@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { groupsQuery, organizationsQuery, sessionQuery } from "@/lib/queries";
 import { createHospitalGroup } from "@/lib/rcm.functions";
 import { EditGroupButton } from "@/components/rcm/setup-editors";
+import { NewOrganizationDialog } from "@/components/rcm/new-organization-dialog";
 
 export const Route = createFileRoute("/_authenticated/hospital-groups")({
   loader: ({ context }) =>
@@ -43,7 +44,12 @@ function HospitalGroups() {
       <PageHeader
         title="Hospital groups"
         description="Groups sit between an organisation and its hospitals, and drive group-level reporting."
-        actions={canCreate ? <NewGroupDialog organizations={orgs.filter((o) => o.org_type === "customer")} /> : null}
+        actions={canCreate ? (
+          <div className="flex gap-2">
+            {session.isSuperAdmin ? <NewOrganizationDialog /> : null}
+            <NewGroupDialog organizations={orgs.filter((o) => o.org_type === "customer")} />
+          </div>
+        ) : null}
       />
 
       {groups.length === 0 ? (
@@ -84,14 +90,15 @@ function HospitalGroups() {
 
 function NewGroupDialog({ organizations }: { organizations: { id: string; name: string }[] }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ organization_id: "", name: "", code: "", headquarters_city: "" });
+  const [form, setForm] = useState({ organization_id: organizations.length === 1 ? organizations[0]!.id : "", name: "", code: "", headquarters_city: "" });
   const [busy, setBusy] = useState(false);
   const create = useServerFn(createHospitalGroup);
   const qc = useQueryClient();
 
   async function submit() {
     if (!form.organization_id || !form.name || !form.code) {
-      toast.error("Organisation, name and code are required.");
+      const missing = [!form.organization_id && "organisation", !form.name && "group name", !form.code && "group code"].filter(Boolean).join(", ");
+      toast.error(`Please fill in: ${missing}.${!form.organization_id && !organizations.length ? " No organisation exists yet — use New organisation first." : ""}`);
       return;
     }
     setBusy(true);

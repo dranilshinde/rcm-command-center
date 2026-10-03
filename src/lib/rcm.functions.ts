@@ -571,3 +571,24 @@ function friendly(message: string, label: string) {
   if (message.includes("violates row-level security")) return "You do not have permission to perform this action.";
   return "We could not save this record. Please check the details and try again.";
 }
+
+export const createOrganization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { name: string; code: string }) => {
+    const name = String(input?.name ?? "").trim();
+    const code = String(input?.code ?? "").trim().toUpperCase();
+    if (name.length < 2 || name.length > 120) throw new Error("Organisation name needs 2 to 120 characters.");
+    if (!/^[A-Z0-9_-]{2,20}$/.test(code)) throw new Error("Code uses 2 to 20 capital letters, numbers, - or _.");
+    return { name, code };
+  })
+  .handler(async ({ context, data }) => {
+    const { data: sa } = await context.supabase.rpc("is_super_admin", { _user_id: context.userId });
+    if (!sa) throw new Error("Only platform super admins can create organisations.");
+    const { data: row, error } = await context.supabase
+      .from("organizations")
+      .insert({ name: data.name, code: data.code, org_type: "customer", status: "active", created_by: context.userId, updated_by: context.userId })
+      .select("id")
+      .single();
+    if (error) throw new Error(friendly(error.message, "organisation code"));
+    return { id: row.id };
+  });
