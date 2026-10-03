@@ -13,8 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdmissionsRouteImport } from './routes/_authenticated/admissions'
+import { Route as AuthenticatedArRouteImport } from './routes/_authenticated/ar'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDenialsRouteImport } from './routes/_authenticated/denials'
 import { Route as AuthenticatedEscalationsRouteImport } from './routes/_authenticated/escalations'
 import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
 import { Route as AuthenticatedHospitalGroupsRouteImport } from './routes/_authenticated/hospital-groups'
@@ -27,8 +29,10 @@ import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPayersRouteImport } from './routes/_authenticated/payers'
 import { Route as AuthenticatedPreauthRouteImport } from './routes/_authenticated/preauth'
 import { Route as AuthenticatedQueriesRouteImport } from './routes/_authenticated/queries'
+import { Route as AuthenticatedReconciliationRouteImport } from './routes/_authenticated/reconciliation'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSettlementsRouteImport } from './routes/_authenticated/settlements'
 import { Route as AuthenticatedSlaRulesRouteImport } from './routes/_authenticated/sla-rules'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedWorkQueueRouteImport } from './routes/_authenticated/work-queue'
@@ -57,6 +61,11 @@ const AuthenticatedAdmissionsRoute = AuthenticatedAdmissionsRouteImport.update({
   path: '/admissions',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedArRoute = AuthenticatedArRouteImport.update({
+  id: '/ar',
+  path: '/ar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -65,6 +74,11 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDenialsRoute = AuthenticatedDenialsRouteImport.update({
+  id: '/denials',
+  path: '/denials',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEscalationsRoute =
@@ -131,6 +145,12 @@ const AuthenticatedQueriesRoute = AuthenticatedQueriesRouteImport.update({
   path: '/queries',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReconciliationRoute =
+  AuthenticatedReconciliationRouteImport.update({
+    id: '/reconciliation',
+    path: '/reconciliation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -141,6 +161,12 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettlementsRoute =
+  AuthenticatedSettlementsRouteImport.update({
+    id: '/settlements',
+    path: '/settlements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSlaRulesRoute = AuthenticatedSlaRulesRouteImport.update({
   id: '/sla-rules',
   path: '/sla-rules',
@@ -191,8 +217,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admissions': typeof AuthenticatedAdmissionsRoute
+  '/ar': typeof AuthenticatedArRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/denials': typeof AuthenticatedDenialsRoute
   '/escalations': typeof AuthenticatedEscalationsRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -205,8 +233,10 @@ export interface FileRoutesByFullPath {
   '/payers': typeof AuthenticatedPayersRouteWithChildren
   '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
+  '/reconciliation': typeof AuthenticatedReconciliationRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/settlements': typeof AuthenticatedSettlementsRoute
   '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/users': typeof AuthenticatedUsersRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
@@ -220,8 +250,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admissions': typeof AuthenticatedAdmissionsRoute
+  '/ar': typeof AuthenticatedArRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/denials': typeof AuthenticatedDenialsRoute
   '/escalations': typeof AuthenticatedEscalationsRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -234,8 +266,10 @@ export interface FileRoutesByTo {
   '/payers': typeof AuthenticatedPayersRouteWithChildren
   '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
+  '/reconciliation': typeof AuthenticatedReconciliationRoute
   '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/settlements': typeof AuthenticatedSettlementsRoute
   '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/users': typeof AuthenticatedUsersRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
@@ -251,8 +285,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admissions': typeof AuthenticatedAdmissionsRoute
+  '/_authenticated/ar': typeof AuthenticatedArRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/denials': typeof AuthenticatedDenialsRoute
   '/_authenticated/escalations': typeof AuthenticatedEscalationsRoute
   '/_authenticated/followups': typeof AuthenticatedFollowupsRoute
   '/_authenticated/hospital-groups': typeof AuthenticatedHospitalGroupsRoute
@@ -265,8 +301,10 @@ export interface FileRoutesById {
   '/_authenticated/payers': typeof AuthenticatedPayersRouteWithChildren
   '/_authenticated/preauth': typeof AuthenticatedPreauthRoute
   '/_authenticated/queries': typeof AuthenticatedQueriesRoute
+  '/_authenticated/reconciliation': typeof AuthenticatedReconciliationRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/settlements': typeof AuthenticatedSettlementsRoute
   '/_authenticated/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/work-queue': typeof AuthenticatedWorkQueueRoute
@@ -282,8 +320,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admissions'
+    | '/ar'
     | '/audit'
     | '/dashboard'
+    | '/denials'
     | '/escalations'
     | '/followups'
     | '/hospital-groups'
@@ -296,8 +336,10 @@ export interface FileRouteTypes {
     | '/payers'
     | '/preauth'
     | '/queries'
+    | '/reconciliation'
     | '/roles'
     | '/settings'
+    | '/settlements'
     | '/sla-rules'
     | '/users'
     | '/work-queue'
@@ -311,8 +353,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admissions'
+    | '/ar'
     | '/audit'
     | '/dashboard'
+    | '/denials'
     | '/escalations'
     | '/followups'
     | '/hospital-groups'
@@ -325,8 +369,10 @@ export interface FileRouteTypes {
     | '/payers'
     | '/preauth'
     | '/queries'
+    | '/reconciliation'
     | '/roles'
     | '/settings'
+    | '/settlements'
     | '/sla-rules'
     | '/users'
     | '/work-queue'
@@ -341,8 +387,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admissions'
+    | '/_authenticated/ar'
     | '/_authenticated/audit'
     | '/_authenticated/dashboard'
+    | '/_authenticated/denials'
     | '/_authenticated/escalations'
     | '/_authenticated/followups'
     | '/_authenticated/hospital-groups'
@@ -355,8 +403,10 @@ export interface FileRouteTypes {
     | '/_authenticated/payers'
     | '/_authenticated/preauth'
     | '/_authenticated/queries'
+    | '/_authenticated/reconciliation'
     | '/_authenticated/roles'
     | '/_authenticated/settings'
+    | '/_authenticated/settlements'
     | '/_authenticated/sla-rules'
     | '/_authenticated/users'
     | '/_authenticated/work-queue'
@@ -403,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdmissionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ar': {
+      id: '/_authenticated/ar'
+      path: '/ar'
+      fullPath: '/ar'
+      preLoaderRoute: typeof AuthenticatedArRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
@@ -415,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/denials': {
+      id: '/_authenticated/denials'
+      path: '/denials'
+      fullPath: '/denials'
+      preLoaderRoute: typeof AuthenticatedDenialsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/escalations': {
@@ -501,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedQueriesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reconciliation': {
+      id: '/_authenticated/reconciliation'
+      path: '/reconciliation'
+      fullPath: '/reconciliation'
+      preLoaderRoute: typeof AuthenticatedReconciliationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/roles': {
       id: '/_authenticated/roles'
       path: '/roles'
@@ -513,6 +584,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settlements': {
+      id: '/_authenticated/settlements'
+      path: '/settlements'
+      fullPath: '/settlements'
+      preLoaderRoute: typeof AuthenticatedSettlementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/sla-rules': {
@@ -587,8 +665,10 @@ const AuthenticatedPayersRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdmissionsRoute: typeof AuthenticatedAdmissionsRoute
+  AuthenticatedArRoute: typeof AuthenticatedArRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDenialsRoute: typeof AuthenticatedDenialsRoute
   AuthenticatedEscalationsRoute: typeof AuthenticatedEscalationsRoute
   AuthenticatedFollowupsRoute: typeof AuthenticatedFollowupsRoute
   AuthenticatedHospitalGroupsRoute: typeof AuthenticatedHospitalGroupsRoute
@@ -601,8 +681,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPayersRoute: typeof AuthenticatedPayersRouteWithChildren
   AuthenticatedPreauthRoute: typeof AuthenticatedPreauthRoute
   AuthenticatedQueriesRoute: typeof AuthenticatedQueriesRoute
+  AuthenticatedReconciliationRoute: typeof AuthenticatedReconciliationRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSettlementsRoute: typeof AuthenticatedSettlementsRoute
   AuthenticatedSlaRulesRoute: typeof AuthenticatedSlaRulesRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedWorkQueueRoute: typeof AuthenticatedWorkQueueRoute
@@ -614,8 +696,10 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdmissionsRoute: AuthenticatedAdmissionsRoute,
+  AuthenticatedArRoute: AuthenticatedArRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDenialsRoute: AuthenticatedDenialsRoute,
   AuthenticatedEscalationsRoute: AuthenticatedEscalationsRoute,
   AuthenticatedFollowupsRoute: AuthenticatedFollowupsRoute,
   AuthenticatedHospitalGroupsRoute: AuthenticatedHospitalGroupsRoute,
@@ -628,8 +712,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPayersRoute: AuthenticatedPayersRouteWithChildren,
   AuthenticatedPreauthRoute: AuthenticatedPreauthRoute,
   AuthenticatedQueriesRoute: AuthenticatedQueriesRoute,
+  AuthenticatedReconciliationRoute: AuthenticatedReconciliationRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSettlementsRoute: AuthenticatedSettlementsRoute,
   AuthenticatedSlaRulesRoute: AuthenticatedSlaRulesRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedWorkQueueRoute: AuthenticatedWorkQueueRoute,

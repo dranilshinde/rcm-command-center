@@ -38,7 +38,7 @@ function Ar() {
       <PageHeader title="AR Management" description="Money owed by payers on submitted and approved claims, aged from document submission. Click a bucket or payer to see the claims." />
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Total AR" value={inr(data?.total)} hint={`${data?.count ?? 0} claims`} />
-        <StatCard label="Over 90 days" value={inr(data?.over90)} tone={data?.over90 ? "risk" : "default"} hint={data?.total ? `${(((data.over90 ?? 0) / data.total) * 100).toFixed(1)}% of AR` : undefined ?? ""} />
+        <StatCard label="Over 90 days" value={inr(data?.over90)} tone={data?.over90 ? "risk" : "default"} hint={data?.total ? `${(((data.over90 ?? 0) / data.total) * 100).toFixed(1)}% of AR` : "—"} />
         <StatCard label="Weighted age" value={`${Math.round(data?.avgAgeDays ?? 0)} days`} />
         <StatCard label="Payers owing" value={data?.byPayer.length ?? 0} />
       </div>
