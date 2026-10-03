@@ -646,18 +646,25 @@ export const importClaims = createServerFn({ method: "POST" })
 
     const [{ data: hospitals }, { data: insurers }, { data: tpas }] = await Promise.all([
       sb.from("hospitals").select("id, name, rohini_id, organization_id").is("deleted_at", null),
-      sb.from("insurers").select("id, name, organization_id").is("deleted_at", null),
-      sb.from("tpas").select("id, name, organization_id").is("deleted_at", null),
+      sb.from("insurers").select("id, name, organization_id, aliases").is("deleted_at", null),
+      sb.from("tpas").select("id, name, organization_id, aliases").is("deleted_at", null),
     ]);
+    const insList = (insurers ?? []) as Payer[];
+    const tpaList = (tpas ?? []) as Payer[];
     const norm = (s: string | null) => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const findHospital = (r: ImportRow) =>
       (hospitals ?? []).find((h) => r.rohini_id && h.rohini_id && norm(h.rohini_id) === norm(r.rohini_id)) ??
       (hospitals ?? []).find((h) => norm(h.name) === norm(r.hospital_name));
-    const findPayer = (list: { id: string; name: string; organization_id: string }[] | null, name: string | null, org: string) => {
-      if (!name) return null;
-      const n = norm(name);
-      return (list ?? []).find((p) => p.organization_id === org && (norm(p.name) === n || n.includes(norm(p.name)) || norm(p.name).includes(n))) ?? null;
+    type Payer = { id: string; name: string; organization_id: string; aliases: string[] };
+    const inOrg = (l: Payer[], org: string) => l.filter((p) => p.organization_id === org);
+    // The sheet's TPA column sometimes holds a direct-settling insurer; insurer column may be blank.
+    const resolvePayers = (r: ImportRow, org: string) => {
+      const tpaHit = matchPayer(inOrg(tpaList, org), r.tpa_name);
+      const tpaAsIns = !tpaHit && r.tpa_name ? matchPayer(inOrg(insList, org), r.tpa_name) : null;
+      const insHit = matchPayer(inOrg(insList, org), r.insurer_name) ?? tpaAsIns;
+      return { tpaHit, insHit, tpaAsIns };
     };
+    const looksLikeTpa = (n: string) => payerTokens(n).includes("tpa");
 
     const seen = new Set<string>();
     const results: RowResult[] = [];
@@ -681,8 +688,11 @@ export const importClaims = createServerFn({ method: "POST" })
       if (r.claim_number && seen.has(key)) errors.push("Claim number repeats in this file");
       seen.add(key);
       if (hospital) {
-        if (r.insurer_name && !findPayer(insurers, r.insurer_name, hospital.organization_id)) warnings.push(`Insurer "${r.insurer_name}" not in Payers — will be left blank`);
-        if (r.tpa_name && !findPayer(tpas, r.tpa_name, hospital.organization_id) && !findPayer(insurers, r.tpa_name, hospital.organization_id)) warnings.push(`TPA "${r.tpa_name}" not in Payers — will be left blank`);
+        const { tpaHit, insHit, tpaAsIns } = resolvePayers(r, hospital.organization_id);
+        if (r.insurer_name && !matchPayer(inOrg(insList, hospital.organization_id), r.insurer_name)) warnings.push(`Insurer "${r.insurer_name}" is new — it will be added to Payers`);
+        else if (insHit && !insHit.exact && r.insurer_name) warnings.push(`Insurer "${r.insurer_name}" matched to ${insHit.payer.name}`);
+        if (r.tpa_name && !tpaHit && !tpaAsIns) warnings.push(`"${r.tpa_name}" is new — it will be added to Payers as ${looksLikeTpa(r.tpa_name) ? "a TPA" : "an insurer"}`);
+        else if (tpaHit && !tpaHit.exact) warnings.push(`TPA "${r.tpa_name}" matched to ${tpaHit.payer.name}`);
       }
       let existingId: string | null = null;
       if (!errors.length && hospital) {
@@ -714,13 +724,35 @@ export const importClaims = createServerFn({ method: "POST" })
 
     const name = await actorName(sb, context.userId);
     let created = 0, updated = 0;
+    // Find or create a payer; remember the sheet spelling as an alias when matched loosely.
+    const ensurePayer = async (kind: "insurer" | "tpa", raw: string | null, org: string): Promise<Payer | null> => {
+      if (!raw?.trim()) return null;
+      const list = kind === "insurer" ? insList : tpaList;
+      const table = kind === "insurer" ? "insurers" : "tpas";
+      const hit = matchPayer(inOrg(list, org), raw);
+      if (hit) {
+        if (!hit.exact) {
+          hit.payer.aliases = [...hit.payer.aliases, raw.trim()];
+          await sb.from(table).update({ aliases: hit.payer.aliases }).eq("id", hit.payer.id);
+        }
+        return hit.payer;
+      }
+      const code = (payerTokens(raw).map((t) => t[0]).join("").toUpperCase().slice(0, 6) || "PAYER") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const row: any = kind === "insurer"
+        ? { organization_id: org, name: raw.trim(), payer_code: code, insurer_type: "private", created_by: context.userId }
+        : { organization_id: org, name: raw.trim(), tpa_code: code, created_by: context.userId };
+      const { data: p } = await sb.from(table).insert(row).select("id, name, organization_id, aliases").maybeSingle();
+      if (!p) return null; // no permission to add payers — leave blank
+      list.push(p as Payer);
+      return p as Payer;
+    };
     const jobRows: { job_id: string; organization_id: string; row_number: number; status: string; errors: string[]; claim_id: string | null }[] = [];
 
     for (const { r, hospital, existingId, mapped } of plans) {
       try {
         const org = hospital.organization_id;
-        const insurer = findPayer(insurers, r.insurer_name, org);
-        const tpa = findPayer(tpas, r.tpa_name, org);
+        const insurer = await ensurePayer("insurer", r.insurer_name, org) ?? (r.tpa_name && !looksLikeTpa(r.tpa_name) && !matchPayer(inOrg(tpaList, org), r.tpa_name) ? await ensurePayer("insurer", r.tpa_name, org) : null);
+        const tpa = r.tpa_name && (looksLikeTpa(r.tpa_name) || matchPayer(inOrg(tpaList, org), r.tpa_name)) ? await ensurePayer("tpa", r.tpa_name, org) : null;
         // patient
         let patientId: string | null = null;
         if (r.uhid) patientId = (await sb.from("patients").select("id").eq("hospital_id", hospital.id).eq("uhid", r.uhid).maybeSingle()).data?.id ?? null;
@@ -766,6 +798,8 @@ export const importClaims = createServerFn({ method: "POST" })
           shortfall_amount: r.shortfall_amount, hospital_discount: r.hospital_discount, patient_paid: r.patient_paid,
           settled_amount: r.settled_amount, tds_amount: r.tds_amount, document_submitted_at: r.document_submitted_at,
           payment_date: r.payment_date ?? r.utr_date, insurer_comments: r.insurer_comments,
+          // Engine clocks run from the sheet's real dates, not the import time.
+          last_status_at: new Date(r.payment_date ?? r.utr_date ?? r.document_submitted_at ?? r.claim_date ?? r.discharge_date ?? r.admission_date!).toISOString(),
         };
         let claimId = existingId;
         let fromStatus: string | null = null;

@@ -234,3 +234,24 @@ export const QUERY_CATEGORIES: Record<string, string> = {
   billing: "Billing", tariff: "Tariff", medical_necessity: "Medical necessity", policy_exclusion: "Policy exclusion",
   other: "Other",
 };
+
+/* --------------------------------------------------------- payer matching */
+
+const PAYER_NOISE = new Set(["the", "co", "company", "ltd", "limited", "pvt", "private", "inc", "gic", "corporation", "corp", "and"]);
+export const payerTokens = (s: string | null | undefined) =>
+  (s ?? "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").split(" ").filter((t) => t && !PAYER_NOISE.has(t));
+export const payerKey = (s: string | null | undefined) => payerTokens(s).join(" ");
+
+/** Matches a spreadsheet payer name to a payer: exact/alias first, then one name's words contained in the other's. */
+export function matchPayer<T extends { name: string; aliases?: string[] | null }>(list: T[], raw: string | null | undefined): { payer: T; exact: boolean } | null {
+  const key = payerKey(raw);
+  if (!key) return null;
+  for (const p of list) if (payerKey(p.name) === key || (p.aliases ?? []).some((a) => payerKey(a) === key)) return { payer: p, exact: true };
+  const a = new Set(payerTokens(raw));
+  const fit = list.filter((p) => {
+    const b = new Set(payerTokens(p.name));
+    const [small, big] = a.size <= b.size ? [a, b] : [b, a];
+    return small.size >= 2 && [...small].every((t) => big.has(t));
+  });
+  return fit.length === 1 ? { payer: fit[0]!, exact: false } : null;
+}
