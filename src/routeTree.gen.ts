@@ -36,6 +36,7 @@ import { Route as AuthenticatedSettlementsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedSlaRulesRouteImport } from './routes/_authenticated/sla-rules'
 import { Route as AuthenticatedTeamMembersRouteImport } from './routes/_authenticated/team-members'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
+import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as AuthenticatedWorkQueueRouteImport } from './routes/_authenticated/work-queue'
 import { Route as AuthenticatedClaimsIndexRouteImport } from './routes/_authenticated/claims.index'
 import { Route as AuthenticatedClaimsClaimIdRouteImport } from './routes/_authenticated/claims.$claimId'
@@ -184,6 +185,11 @@ const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWorkQueueRoute = AuthenticatedWorkQueueRouteImport.update({
   id: '/work-queue',
   path: '/work-queue',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/team-members': typeof AuthenticatedTeamMembersRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
@@ -281,6 +288,7 @@ export interface FileRoutesByTo {
   '/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/team-members': typeof AuthenticatedTeamMembersRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
@@ -317,6 +325,7 @@ export interface FileRoutesById {
   '/_authenticated/sla-rules': typeof AuthenticatedSlaRulesRoute
   '/_authenticated/team-members': typeof AuthenticatedTeamMembersRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
+  '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/_authenticated/work-queue': typeof AuthenticatedWorkQueueRoute
   '/_authenticated/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/_authenticated/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/sla-rules'
     | '/team-members'
     | '/users'
+    | '/welcome'
     | '/work-queue'
     | '/claims/$claimId'
     | '/hospitals/$hospitalId'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/sla-rules'
     | '/team-members'
     | '/users'
+    | '/welcome'
     | '/work-queue'
     | '/claims/$claimId'
     | '/hospitals/$hospitalId'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sla-rules'
     | '/_authenticated/team-members'
     | '/_authenticated/users'
+    | '/_authenticated/welcome'
     | '/_authenticated/work-queue'
     | '/_authenticated/claims/$claimId'
     | '/_authenticated/hospitals/$hospitalId'
@@ -627,6 +639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/welcome': {
+      id: '/_authenticated/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-queue': {
       id: '/_authenticated/work-queue'
       path: '/work-queue'
@@ -708,6 +727,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSlaRulesRoute: typeof AuthenticatedSlaRulesRoute
   AuthenticatedTeamMembersRoute: typeof AuthenticatedTeamMembersRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
+  AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
   AuthenticatedWorkQueueRoute: typeof AuthenticatedWorkQueueRoute
   AuthenticatedClaimsClaimIdRoute: typeof AuthenticatedClaimsClaimIdRoute
   AuthenticatedHospitalsHospitalIdRoute: typeof AuthenticatedHospitalsHospitalIdRoute
@@ -740,6 +760,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSlaRulesRoute: AuthenticatedSlaRulesRoute,
   AuthenticatedTeamMembersRoute: AuthenticatedTeamMembersRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
+  AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
   AuthenticatedWorkQueueRoute: AuthenticatedWorkQueueRoute,
   AuthenticatedClaimsClaimIdRoute: AuthenticatedClaimsClaimIdRoute,
   AuthenticatedHospitalsHospitalIdRoute: AuthenticatedHospitalsHospitalIdRoute,
