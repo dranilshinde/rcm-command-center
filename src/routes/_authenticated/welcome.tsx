@@ -62,7 +62,7 @@ function Welcome() {
 
   async function addStructure(kind: "department" | "team") {
     const name = kind === "department" ? newDept : newTeam;
-    if (name.trim().length < 2) return toast.error("Enter a name with at least 2 characters.");
+    if (name.trim().length < 2) { toast.error("Enter a name with at least 2 characters."); return; }
     setBusy(true);
     try {
       const r = await create({ data: { kind, hospitalId, name, deptType: newDeptType,
@@ -90,7 +90,7 @@ function Welcome() {
   }
 
   async function next() {
-    if (step === 0 && fullName.trim().length < 2) return toast.error("Enter your full name.");
+    if (step === 0 && fullName.trim().length < 2) { toast.error("Enter your full name."); return; }
     if (step < 3 && (await persist(false))) setStep(step + 1);
   }
 
