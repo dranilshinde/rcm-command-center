@@ -12,3 +12,6 @@
 - Payer contact routing lives in the database (pick_spoc + insert triggers on tasks/escalations) so the hourly engine and manual flows share one rule.
 
 - Denial/short-payment recovery records are opened by a database trigger on claim status so every path (manual, payment, import, reconciliation) creates them.
+
+- Role rules: platform defaults in role_permissions; per-hospital overrides in hospital_role_permissions, resolved inside has_permission/my_permissions so RLS and UI share one rule.
+- Locked pages are derived from MODULE.VIEW via src/lib/access.ts PAGE_MODULE; one map drives nav locks and the page lock screen.

@@ -26,6 +26,9 @@ export type SessionContext = {
     status: string;
     availability: string;
     is_platform_user: boolean;
+    phone: string | null;
+    department_id: string | null;
+    onboarded_at: string | null;
   } | null;
   roles: { key: string; name: string }[];
   permissions: string[];
@@ -50,7 +53,7 @@ export const getSessionContext = createServerFn({ method: "GET" })
 
     const { data: profile } = await sb
       .from("profiles")
-      .select("id, full_name, email, job_title, status, availability, is_platform_user")
+      .select("id, full_name, email, job_title, status, availability, is_platform_user, phone, department_id, onboarded_at")
       .eq("id", userId)
       .maybeSingle();
 
@@ -66,18 +69,8 @@ export const getSessionContext = createServerFn({ method: "GET" })
 
     let permissions: string[] = [];
     if (roleIds.length) {
-      const { data: rp } = await sb
-        .from("role_permissions")
-        .select("permissions(module, action)")
-        .in("role_id", roleIds);
-      permissions = Array.from(
-        new Set(
-          (rp ?? [])
-            .map((row) => row.permissions as unknown as { module: string; action: string } | null)
-            .filter((p): p is { module: string; action: string } => !!p)
-            .map((p) => `${p.module}.${p.action}`),
-        ),
-      );
+      const { data: perms } = await sb.rpc("my_permissions");
+      permissions = (perms ?? []) as string[];
     }
 
     const { data: hospitals } = await sb
