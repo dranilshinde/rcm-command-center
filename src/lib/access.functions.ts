@@ -8,26 +8,30 @@ const STAFF_LEVELS = ["hospital", "branch", "team"];
 
 export const getRoleMatrix = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { hospitalId: string | null }) => i)
+  .inputValidator((i: { hospitalId: string | null; roleId: string | null }) => i)
   .handler(async ({ context, data }) => {
     const sb = context.supabase;
-    const [{ data: roles }, { data: permissions }, { data: defaults }, { data: isSa }] = await Promise.all([
+    const [{ data: roles }, { data: permissions }, { data: isSa }] = await Promise.all([
       sb.from("roles").select("id, key, name, description, role_level").order("role_level").order("name"),
       sb.from("permissions").select("id, module, action").order("module"),
-      sb.from("role_permissions").select("role_id, permission_id"),
       sb.rpc("is_super_admin", { _user_id: context.userId }),
     ]);
+    const visible = (roles ?? []).filter((r) => !data.hospitalId || (STAFF_LEVELS.includes(r.role_level) && r.key !== "hospital_admin") || r.key === "hospital_admin");
+    const roleId = visible.find((r) => r.id === data.roleId)?.id ?? visible[0]?.id ?? null;
+    const { data: defaults } = roleId
+      ? await sb.from("role_permissions").select("role_id, permission_id").eq("role_id", roleId)
+      : { data: [] as { role_id: string; permission_id: string }[] };
     let overrides: { role_id: string; permission_id: string; allowed: boolean }[] = [];
     let canEdit = !!isSa;
     if (data.hospitalId) {
       const [{ data: o }, { data: adm }] = await Promise.all([
-        sb.from("hospital_role_permissions").select("role_id, permission_id, allowed").eq("hospital_id", data.hospitalId),
+        sb.from("hospital_role_permissions").select("role_id, permission_id, allowed").eq("hospital_id", data.hospitalId).eq("role_id", roleId ?? ""),
         sb.rpc("is_hospital_admin", { _user_id: context.userId, _hospital_id: data.hospitalId }),
       ]);
       overrides = o ?? [];
       canEdit = !!adm;
     }
-    return { roles: roles ?? [], permissions: permissions ?? [], defaults: defaults ?? [], overrides, canEdit };
+    return { roles: roles ?? [], roleId, permissions: permissions ?? [], defaults: defaults ?? [], overrides, canEdit };
   });
 
 export const setRolePermission = createServerFn({ method: "POST" })

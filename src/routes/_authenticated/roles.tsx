@@ -37,12 +37,12 @@ function RolesPage() {
   const fetchMatrix = useServerFn(getRoleMatrix);
   const setPerm = useServerFn(setRolePermission);
   const reset = useServerFn(resetHospitalRole);
-  const m = useQuery({ queryKey: ["role-matrix", hospitalId], queryFn: () => fetchMatrix({ data: { hospitalId } }) });
   const [roleId, setRoleId] = useState("");
+  const m = useQuery({ queryKey: ["role-matrix", hospitalId, roleId], queryFn: () => fetchMatrix({ data: { hospitalId, roleId: roleId || null } }) });
   const [busy, setBusy] = useState<string | null>(null);
 
   const roles = (m.data?.roles ?? []).filter((r) => !hospitalId || (STAFF.includes(r.role_level)));
-  const role = roles.find((r) => r.id === roleId) ?? roles[0];
+  const role = roles.find((r) => r.id === (m.data?.roleId ?? roleId)) ?? roles[0];
   const rid = role?.id ?? "";
   const editableRole = !!role && (!hospitalId || role.key !== "hospital_admin");
   const canEdit = !!m.data?.canEdit && editableRole;
