@@ -4,12 +4,14 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity, Bell, Building2, ClipboardList, Database, FileStack, Gauge, HeartPulse,
   Landmark, LayoutGrid, LineChart, ListChecks, LogOut, Network, Receipt, ScrollText,
-  Mail, Search, Settings, ShieldCheck, Users, Wallet,
+  Lock, Mail, Search, Settings, ShieldCheck, Users, Wallet,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { sessionQuery } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+import { isPageLocked, moduleForPath } from "@/lib/access";
+import { toast } from "sonner";
 
 type NavItem = { label: string; to?: string; icon: typeof Gauge; phase?: number };
 type NavSection = { title: string; items: NavItem[] };
@@ -121,6 +123,21 @@ export function AppShell({ children }: { children: ReactNode }) {
                     );
                   }
                   const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+                  if (isPageLocked(item.to, session)) {
+                    return (
+                      <li key={item.label}>
+                        <button
+                          type="button"
+                          onClick={() => toast.info(`${item.label} is not part of your role. Ask your hospital admin for access.`)}
+                          className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[13px] text-sidebar-foreground/45 hover:bg-sidebar-accent"
+                        >
+                          <Icon className="h-4 w-4" />
+                          <span className="flex-1 truncate">{item.label}</span>
+                          <Lock className="h-3 w-3" />
+                        </button>
+                      </li>
+                    );
+                  }
                   return (
                     <li key={item.label}>
                       <Link
@@ -151,9 +168,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="truncate text-[12px] font-medium text-sidebar-accent-foreground">
                 {session.profile?.full_name}
               </p>
-              <p className="truncate text-[10px] text-sidebar-foreground/60">
-                {session.roles[0]?.name ?? "No role assigned"}
-              </p>
+              <Link to="/welcome" className="block truncate text-[10px] text-sidebar-foreground/60 hover:underline">
+                {session.roles[0]?.name ?? "No role assigned"} · My setup
+              </Link>
             </div>
             <button
               onClick={signOut}
@@ -192,7 +209,24 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </header>
-        <main className="min-w-0 flex-1 px-4 py-5 md:px-6">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-5 md:px-6">
+          {!session.isSuperAdmin && !session.profile?.onboarded_at && pathname !== "/welcome" ? (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-[13px]">
+              <span>Welcome! Finish your setup — pick your department and team and see what your role can do.</span>
+              <Link to="/welcome" className="rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground">Start setup</Link>
+            </div>
+          ) : null}
+          {isPageLocked(pathname, session) ? (
+            <div className="mx-auto mt-16 max-w-md rounded-lg border border-border bg-card p-6 text-center">
+              <Lock className="mx-auto mb-3 h-6 w-6 text-muted-foreground" />
+              <h1 className="text-[16px] font-semibold">This page is locked for your role</h1>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Your role does not include access to {moduleForPath(pathname)?.replace(/_/g, " ")}. Ask your hospital admin to change your role's rules.
+              </p>
+              <Link to="/welcome" className="mt-4 inline-block text-[13px] underline">See what your role can do</Link>
+            </div>
+          ) : children}
+        </main>
       </div>
     </div>
   );
