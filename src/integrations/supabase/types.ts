@@ -1315,6 +1315,74 @@ export type Database = {
           },
         ]
       }
+      hospital_role_permissions: {
+        Row: {
+          allowed: boolean
+          created_at: string
+          created_by: string | null
+          hospital_id: string
+          id: string
+          organization_id: string
+          permission_id: string
+          role_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allowed: boolean
+          created_at?: string
+          created_by?: string | null
+          hospital_id: string
+          id?: string
+          organization_id: string
+          permission_id: string
+          role_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allowed?: boolean
+          created_at?: string
+          created_by?: string | null
+          hospital_id?: string
+          id?: string
+          organization_id?: string
+          permission_id?: string
+          role_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_role_permissions_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_role_permissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hospitals: {
         Row: {
           bed_count: number | null
@@ -2076,6 +2144,7 @@ export type Database = {
           backup_user_id: string | null
           created_at: string
           created_by: string | null
+          department_id: string | null
           email: string | null
           employee_code: string | null
           full_name: string
@@ -2083,6 +2152,7 @@ export type Database = {
           is_platform_user: boolean
           job_title: string | null
           last_active_at: string | null
+          onboarded_at: string | null
           organization_id: string | null
           phone: string | null
           status: string
@@ -2094,6 +2164,7 @@ export type Database = {
           backup_user_id?: string | null
           created_at?: string
           created_by?: string | null
+          department_id?: string | null
           email?: string | null
           employee_code?: string | null
           full_name?: string
@@ -2101,6 +2172,7 @@ export type Database = {
           is_platform_user?: boolean
           job_title?: string | null
           last_active_at?: string | null
+          onboarded_at?: string | null
           organization_id?: string | null
           phone?: string | null
           status?: string
@@ -2112,6 +2184,7 @@ export type Database = {
           backup_user_id?: string | null
           created_at?: string
           created_by?: string | null
+          department_id?: string | null
           email?: string | null
           employee_code?: string | null
           full_name?: string
@@ -2119,6 +2192,7 @@ export type Database = {
           is_platform_user?: boolean
           job_title?: string | null
           last_active_at?: string | null
+          onboarded_at?: string | null
           organization_id?: string | null
           phone?: string | null
           status?: string
@@ -2126,6 +2200,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_organization_id_fkey"
             columns: ["organization_id"]
@@ -3034,7 +3115,13 @@ export type Database = {
         Args: { _action: string; _module: string; _user_id: string }
         Returns: boolean
       }
+      is_hospital_admin: {
+        Args: { _hospital_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_overridable_role: { Args: { _role_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      my_permissions: { Args: never; Returns: string[] }
       pick_reminder_rule: {
         Args: {
           _hosp: string
