@@ -54,6 +54,7 @@ function RolesPage() {
   const modules = Array.from(new Set(perms.map((p) => p.module))).sort();
   const effKeys = perms.filter((p) => effective(p.id)).map((p) => `${p.module}.${p.action}`);
   const summary = describeAccess(effKeys, false);
+  if (typeof window !== "undefined") console.log("DBG", rid, def.size, perms.length, (m.data?.defaults ?? []).length, m.data?.defaults?.[0]?.role_id);
 
   async function toggle(pid: string) {
     if (!canEdit) return;
