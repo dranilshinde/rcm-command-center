@@ -1,42 +1,28 @@
 // Client-safe claim domain rules shared by server functions and pages.
 
-export const CLAIM_STATUSES = [
-  "draft", "ready", "submitted", "query", "query_replied", "approved",
-  "denied", "preauth_rejected", "short_paid", "settled", "closed",
-] as const;
-export type ClaimStatus = (typeof CLAIM_STATUSES)[number];
+export { CLAIM_STATUSES, CLAIM_STATUS_LABEL, QUERY_CATEGORIES, inr } from "./rcm-definitions";
+export type { ClaimStatus } from "./rcm-definitions";
 
-export const CLAIM_STATUS_LABEL: Record<string, string> = {
-  draft: "Draft",
-  ready: "Ready to submit",
-  submitted: "Submitted",
-  query: "Query raised",
-  query_replied: "Query replied",
-  approved: "Approved",
-  denied: "Denied",
-  preauth_rejected: "Pre-auth rejected",
-  short_paid: "Short paid",
-  settled: "Settled",
-  closed: "Closed",
-};
-
-export const OPEN_CLAIM_STATUSES = ["draft", "ready", "submitted", "query", "query_replied", "approved"];
+export const OPEN_CLAIM_STATUSES = ["draft", "ready", "submitted", "query", "query_replied", "approved", "resubmitted", "under_processing", "appealed"];
 
 export type ClaimAction =
   | "mark_ready" | "submit" | "record_query" | "reply_query" | "approve"
-  | "deny" | "mark_short_paid" | "settle" | "close" | "reopen";
+  | "deny" | "mark_short_paid" | "mark_processing" | "partial_reject" | "appeal" | "settle" | "close" | "reopen";
 
 export const ACTIONS: Record<ClaimAction, { label: string; from: string[]; to: string }> = {
   mark_ready: { label: "Mark ready", from: ["draft"], to: "ready" },
   submit: { label: "Submit to payer", from: ["draft", "ready"], to: "submitted" },
-  record_query: { label: "Record payer query", from: ["submitted", "query_replied", "approved"], to: "query" },
+  mark_processing: { label: "Mark under processing", from: ["submitted", "resubmitted", "query_replied"], to: "under_processing" },
+  record_query: { label: "Record payer query", from: ["submitted", "resubmitted", "under_processing", "query_replied", "approved"], to: "query" },
   reply_query: { label: "Reply to query", from: ["query"], to: "query_replied" },
-  approve: { label: "Record approval", from: ["submitted", "query_replied"], to: "approved" },
-  deny: { label: "Record denial", from: ["submitted", "query", "query_replied"], to: "denied" },
+  approve: { label: "Record approval", from: ["submitted", "resubmitted", "under_processing", "query_replied", "appealed"], to: "approved" },
+  partial_reject: { label: "Record partial rejection", from: ["submitted", "resubmitted", "under_processing", "query_replied"], to: "partially_rejected" },
+  deny: { label: "Record denial", from: ["submitted", "resubmitted", "under_processing", "query", "query_replied"], to: "denied" },
+  appeal: { label: "Mark appealed", from: ["denied", "partially_rejected", "short_paid"], to: "appealed" },
   mark_short_paid: { label: "Mark short paid", from: ["approved", "settled"], to: "short_paid" },
   settle: { label: "Mark settled", from: ["approved", "short_paid"], to: "settled" },
-  close: { label: "Close claim", from: ["settled", "short_paid", "denied", "preauth_rejected"], to: "closed" },
-  reopen: { label: "Reopen", from: ["closed", "denied", "settled", "short_paid"], to: "submitted" },
+  close: { label: "Close claim", from: ["settled", "short_paid", "denied", "partially_rejected"], to: "closed" },
+  reopen: { label: "Resubmit", from: ["closed", "denied", "partially_rejected", "settled", "short_paid"], to: "resubmitted" },
 };
 
 export const TASK_STATUSES = ["open", "in_progress", "waiting", "completed", "cancelled", "escalated"] as const;
@@ -52,22 +38,18 @@ export type ReadinessInput = {
   diagnosis: string | null | undefined;
   treatment: string | null | undefined;
   has_payer: boolean;
-  preauth_approved: boolean;
   claimed_amount: number;
-  document_submitted_at: string | null | undefined;
 };
 
 const CHECKS: { key: string; label: string; weight: number; ok: (r: ReadinessInput) => boolean }[] = [
-  { key: "policy", label: "Policy number", weight: 15, ok: (r) => !!r.policy_number?.trim() },
-  { key: "payer", label: "Insurer or TPA linked", weight: 10, ok: (r) => r.has_payer },
+  { key: "policy", label: "Policy number", weight: 20, ok: (r) => !!r.policy_number?.trim() },
+  { key: "payer", label: "Insurer or TPA linked", weight: 15, ok: (r) => r.has_payer },
   { key: "member", label: "Member / customer ID", weight: 5, ok: (r) => !!r.member_id?.trim() },
   { key: "ip", label: "In-patient number", weight: 10, ok: (r) => !!r.ip_number?.trim() },
   { key: "discharge", label: "Discharge date", weight: 10, ok: (r) => !!r.discharge_date },
   { key: "diagnosis", label: "Diagnosis", weight: 10, ok: (r) => !!r.diagnosis?.trim() },
-  { key: "treatment", label: "Treatment", weight: 5, ok: (r) => !!r.treatment?.trim() },
-  { key: "preauth", label: "Pre-auth approved", weight: 15, ok: (r) => r.preauth_approved },
-  { key: "amount", label: "Claimed amount entered", weight: 10, ok: (r) => r.claimed_amount > 0 },
-  { key: "documents", label: "Documents submitted", weight: 10, ok: (r) => !!r.document_submitted_at },
+  { key: "treatment", label: "Treatment", weight: 10, ok: (r) => !!r.treatment?.trim() },
+  { key: "amount", label: "Claimed amount entered", weight: 20, ok: (r) => r.claimed_amount > 0 },
 ];
 
 export function computeReadiness(r: ReadinessInput) {
@@ -93,7 +75,7 @@ export const SHEET_STATUS_MAP: Record<string, { status: string; reconciled: bool
   "short paid - letter reconciled": { status: "short_paid", reconciled: true },
   "claim settled": { status: "settled", reconciled: false },
   "claim denied": { status: "denied", reconciled: false },
-  "preauth request rejected": { status: "preauth_rejected", reconciled: false },
+  "preauth request rejected": { status: "denied", reconciled: false },
   "claim submitted": { status: "submitted", reconciled: false },
   "query raised": { status: "query", reconciled: false },
   "claim approved": { status: "approved", reconciled: false },
@@ -220,20 +202,13 @@ export function mapSheetRow(raw: Record<string, unknown>, rowNumber: number) {
   return { row: out as ImportRow, errors };
 }
 
-export const inr = (n: number | null | undefined) =>
-  "₹" + Number(n ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 
 export const ROLE_LABEL: Record<string, string> = {
   rcm_executive: "RCM executive", rcm_manager: "RCM manager", ar_manager: "AR manager", rcm_head: "RCM head",
-  hospital_admin: "Hospital admin", cfo: "CFO", finance_head: "Finance head", cashless_manager: "Cashless manager",
+  hospital_admin: "Hospital admin", cfo: "CFO", finance_head: "Finance head",
   billing_manager: "Billing manager", denial_manager: "Denial manager",
 };
 
-export const QUERY_CATEGORIES: Record<string, string> = {
-  documentation: "Documentation", eligibility: "Eligibility", authorization: "Authorisation", coding: "Coding",
-  billing: "Billing", tariff: "Tariff", medical_necessity: "Medical necessity", policy_exclusion: "Policy exclusion",
-  other: "Other",
-};
 
 /* --------------------------------------------------------- payer matching */
 

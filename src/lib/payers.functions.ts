@@ -1,3 +1,4 @@
+import { AGEING_BUCKETS, outstandingAmount } from "./rcm-definitions";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -82,7 +83,7 @@ export const saveSpoc = createServerFn({ method: "POST" })
     return { id: res.data.id as string };
   });
 
-const BUCKETS = [[0, 7], [8, 15], [16, 30], [31, 60], [61, 90], [91, 180], [181, 365], [366, Infinity]] as const;
+const BUCKETS = AGEING_BUCKETS;
 const OPEN = new Set(["submitted", "query", "query_replied", "approved", "short_paid"]);
 
 export const getPayer360 = createServerFn({ method: "GET" })
@@ -97,7 +98,7 @@ export const getPayer360 = createServerFn({ method: "GET" })
     if (!payer) throw new Error("Payer not found.");
 
     const [{ data: claims }, { data: spocs }, { data: sla }, { data: rem }] = await Promise.all([
-      sb.from("claims").select(`id, claim_code, status, claim_date, document_submitted_at, payment_date, claimed_amount, approved_amount, settled_amount, short_payment, escalation_level, next_followup_at, hospitals(name), patients(full_name), admissions!inner(${col})`)
+      sb.from("claims").select(`id, claim_code, status, claim_date, document_submitted_at, payment_date, claimed_amount, approved_amount, settled_amount, tds_amount, short_payment, escalation_level, next_followup_at, hospitals(name), patients(full_name), admissions!inner(${col})`)
         .eq(`admissions.${col}`, data.id).is("deleted_at", null).order("claim_date", { ascending: false }).limit(5000),
       sb.from("tpa_spocs").select("id, name, designation, email, phone, location, escalation_level, status, hospital_id, tpa_id, insurer_id, hospitals(name)").eq(col, data.id).order("escalation_level"),
       sb.from("sla_rules").select("id, process, target_hours, is_active, hospital_id").eq(col, data.id),
@@ -113,11 +114,11 @@ export const getPayer360 = createServerFn({ method: "GET" })
       : [{ data: [] as any[] }, { data: [] as any[] }];
 
     const now = Date.now();
-    const pendingOf = (c: any) => Math.max(Number(c.approved_amount || c.claimed_amount) - Number(c.settled_amount), 0);
+    const pendingOf = (c: any) => outstandingAmount(c);
     const submitted = list.filter((c) => c.status !== "draft" && c.status !== "ready");
     const settledList = list.filter((c) => ["settled", "short_paid", "closed"].includes(c.status));
     const open = list.filter((c) => OPEN.has(c.status));
-    const aging = BUCKETS.map(([a, b]) => ({ label: b === Infinity ? "365+" : `${a}-${b}`, claims: 0, amount: 0 }));
+    const aging = BUCKETS.map(([a, b]) => ({ label: b === Infinity ? "180+" : `${a}-${b}`, claims: 0, amount: 0 }));
     for (const c of open) {
       const from = c.document_submitted_at ?? c.claim_date;
       const d = Math.max(0, Math.floor((now - new Date(from).getTime()) / 864e5));

@@ -28,7 +28,7 @@ function Dashboard() {
     <div>
       <PageHeader
         title={`Good day, ${session.profile?.full_name?.split(" ")[0] ?? "there"}`}
-        description="Phase 1 foundation overview. Claim, AR and payer figures appear as later phases go live."
+        description="Your hospitals, branches and people at a glance. Claim and money figures move here in the management dashboard (later phase)."
       />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -107,13 +107,6 @@ function Dashboard() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-dashed border-border bg-card/60 p-4">
-        <h2 className="text-sm font-semibold">Coming next</h2>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          Phase 2 adds patients, admissions, pre-authorisation, the claim lifecycle and the work queue. Those
-          sidebar entries stay greyed out until they are real.
-        </p>
-      </section>
     </div>
   );
 }

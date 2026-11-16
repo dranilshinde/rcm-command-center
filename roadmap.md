@@ -1,11 +1,9 @@
-# Roadmap
-- [x] Phase 1 admin pages
-- [x] Brand: red & white colours + uploaded logo + favicon
-- [x] Guided hospital onboarding wizard
-- [x] Edit setup after onboarding, admin invitations page, AI go-live review
-- [ ] Phase 1 verification (needs a signed-up account) & report
-- [x] Phase 2: claim core (patients, admissions, pre-auth, discharge, claims, work queue, readiness, Excel import)
-- [ ] Phase 2 browser check with a signed-in account + Rohini ID field on hospital edit form
-- [x] Phase 5: AR, settlements, reconciliation, denials
-- [x] Phase 4: payers, TPAs, SPOCs, payer 360, SPOC routing in engine
-- [x] Phase 3: queries, follow-ups, SLA rules, reminders, escalations engine (hourly)
+# Roadmap (post-discharge scope, audit order)
+- [x] A: money defects, pre-auth removal, shared definitions, hourly engine
+- [ ] A: move demo orgs/hospitals/payers out of the first migration into an optional seed file
+- [ ] B: handover import (pending discharged cases) + documents & checklist; replace Discharge Handover screen
+- [ ] C: submission details (date, channel, ack no., resubmission count); one reply per query, Closed state
+- [ ] D: deduction ledger, appeal levels and grievance refs
+- [ ] E: reconciliation split matching (one credit → many claims)
+- [ ] F: management dashboard / MIS + email alerts
+- [ ] G: menu by eight stages, merge admin pages, security gaps

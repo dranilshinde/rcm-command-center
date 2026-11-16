@@ -139,7 +139,7 @@ export const runOnboarding = createServerFn({ method: "POST" })
 const STEPS: [string, string][] = [
   ["hospital_details", "Hospital details captured"], ["branches", "Branches created"],
   ["departments", "Departments created"], ["teams", "Teams created"], ["payers", "Payers mapped"],
-  ["tpas", "TPAs mapped"], ["spocs", "TPA contacts captured"], ["tariffs", "Tariffs uploaded"],
+  ["tpas", "TPAs mapped"], ["spocs", "TPA contacts captured"],
   ["users", "Users created and roles assigned"], ["historical_claims", "Historical claims imported"],
   ["sla", "SLA rules configured"], ["workflows", "Workflows configured"],
   ["escalation", "Escalation matrix configured"], ["go_live", "Go live"],

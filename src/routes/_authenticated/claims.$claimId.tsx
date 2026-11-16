@@ -1,3 +1,4 @@
+import { READINESS_WARN_BELOW } from "@/lib/rcm-definitions";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -63,7 +64,7 @@ function ClaimPage() {
       <div className="mb-4 flex flex-wrap gap-2">
         {available.map((k) => <Button key={k} size="sm" variant={k === "submit" || k === "approve" ? "default" : "outline"} onClick={() => setAction(k)}>{ACTIONS[k].label}</Button>)}
         {["approved", "short_paid", "settled"].includes(c.status) ? <Button size="sm" variant="outline" onClick={() => setPayOpen(true)}>Record payment</Button> : null}
-        {["submitted", "query", "query_replied", "approved", "short_paid"].includes(c.status) ? <LogFollowupDialog claimId={c.id} /> : null}
+        {["submitted", "resubmitted", "under_processing", "query", "query_replied", "approved", "short_paid", "appealed"].includes(c.status) ? <LogFollowupDialog claimId={c.id} /> : null}
         <Button size="sm" variant="ghost" onClick={() => setEditOpen(true)}>Edit details</Button>
         <AssignControl claimId={c.id} hospitalId={c.hospital_id} current={c.profiles?.id ?? null} />
       </div>
@@ -174,15 +175,10 @@ function ClaimPage() {
               ["Rohini ID", c.hospitals?.rohini_id], ["Insurer comments", c.insurer_comments],
             ]} />
           </Section>
-          {data.preauths.length ? (
-            <Section title="Pre-auth">
-              {data.preauths.map((p: any) => <div key={p.id} className="flex items-center justify-between text-[13px]"><span className="capitalize">{p.kind} · {inr(p.approved_amount ?? p.requested_amount)}</span><Chip value={p.status} /></div>)}
-            </Section>
-          ) : null}
         </div>
       </div>
 
-      {action ? <ActionDialog claimId={c.id} action={action} approvedDefault={Number(c.claimed_amount)} onClose={() => setAction(null)} /> : null}
+      {action ? <ActionDialog claimId={c.id} action={action} approvedDefault={Number(c.claimed_amount)} readiness={Number(c.readiness_score ?? 0)} onClose={() => setAction(null)} /> : null}
       {payOpen ? <PaymentDialog claimId={c.id} remaining={Math.max(Number(c.approved_amount) - Number(c.settled_amount) - Number(c.tds_amount), 0)} onClose={() => setPayOpen(false)} /> : null}
       {editOpen ? <EditDialog c={c} onClose={() => setEditOpen(false)} /> : null}
     </div>
@@ -226,7 +222,7 @@ function AssignControl({ claimId, hospitalId, current }: { claimId: string; hosp
   );
 }
 
-function ActionDialog({ claimId, action, approvedDefault, onClose }: { claimId: string; action: ClaimAction; approvedDefault: number; onClose: () => void }) {
+function ActionDialog({ claimId, action, approvedDefault, readiness, onClose }: { claimId: string; action: ClaimAction; approvedDefault: number; readiness: number; onClose: () => void }) {
   const qc = useQueryClient();
   const run = useServerFn(runClaimAction);
   const [note, setNote] = useState("");
@@ -234,11 +230,12 @@ function ActionDialog({ claimId, action, approvedDefault, onClose }: { claimId: 
   const [amt, setAmt] = useState(String(approvedDefault || ""));
   const [cat, setCat] = useState("documentation");
   const [busy, setBusy] = useState(false);
-  const needsNote = action === "record_query" || action === "deny" || action === "reply_query";
+  const needsNote = action === "record_query" || action === "deny" || action === "reply_query" || action === "partial_reject";
+  const needsAmt = action === "approve" || action === "partial_reject";
   async function go() {
     setBusy(true);
     try {
-      await run({ data: { claimId, action, note: note || null, external_claim_no: ext || null, approved_amount: action === "approve" ? Number(amt) : null, query_category: action === "record_query" ? cat : null } });
+      await run({ data: { claimId, action, note: note || null, external_claim_no: ext || null, approved_amount: needsAmt ? Number(amt) : null, query_category: action === "record_query" ? cat : null } });
       toast.success(ACTIONS[action].label + " — done"); invalidate(qc, claimId); onClose();
     } catch (e) { toast.error(errMsg(e)); } finally { setBusy(false); }
   }
@@ -251,8 +248,9 @@ function ActionDialog({ claimId, action, approvedDefault, onClose }: { claimId: 
           {action === "record_query" ? <div><Label>Query category</Label>
             <Select value={cat} onValueChange={setCat}><SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{Object.entries(QUERY_CATEGORIES).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select></div> : null}
-          {action === "approve" ? <div><Label>Approved amount (₹)</Label><Input inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} /></div> : null}
-          <div><Label>{needsNote ? (action === "deny" ? "Denial reason" : action === "reply_query" ? "Reply sent to payer" : "Query from payer") : "Note (optional)"}</Label><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></div>
+          {action === "submit" && readiness < READINESS_WARN_BELOW ? <p className="rounded-md border border-destructive/40 bg-destructive/5 p-2 text-[12px] text-destructive">Readiness is {readiness}/100 — below {READINESS_WARN_BELOW}. Payers often reject incomplete claims. Fill the gaps first if you can.</p> : null}
+          {needsAmt ? <div><Label>{action === "partial_reject" ? "Amount the payer approved (₹)" : "Approved amount (₹)"}</Label><Input inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} /></div> : null}
+          <div><Label>{needsNote ? (action === "deny" || action === "partial_reject" ? "Rejection reason" : action === "reply_query" ? "Reply sent to payer" : "Query from payer") : "Note (optional)"}</Label><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></div>
           {action === "record_query" ? <p className="text-[12px] text-muted-foreground">A “reply to query” task is added to the work queue, due by your query-response SLA for this payer.</p> : null}
         </div>
         <DialogFooter><Button onClick={go} disabled={busy || (needsNote && !note.trim())}>{busy ? "Saving…" : "Confirm"}</Button></DialogFooter>

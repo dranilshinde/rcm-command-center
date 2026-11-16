@@ -13,7 +13,7 @@ const TONE = {
 
 const STATUS_TONE: Record<string, keyof typeof TONE> = {
   draft: "muted", ready: "primary", submitted: "primary", query: "warning", query_replied: "primary",
-  approved: "positive", denied: "risk", preauth_rejected: "risk", short_paid: "warning", settled: "positive", closed: "muted",
+  approved: "positive", denied: "risk", partially_rejected: "risk", appealed: "warning", resubmitted: "warning", under_processing: "warning", short_paid: "warning", settled: "positive", closed: "muted",
   requested: "primary", rejected: "risk", admitted: "primary", discharged: "muted",
   open: "primary", in_progress: "warning", waiting: "muted", completed: "positive", cancelled: "muted", escalated: "risk",
   urgent: "risk", high: "warning", normal: "muted", low: "muted",

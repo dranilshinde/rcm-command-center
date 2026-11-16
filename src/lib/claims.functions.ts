@@ -51,17 +51,14 @@ async function refreshReadiness(sb: Sb, claimId: string) {
     .maybeSingle();
   if (!c) return;
   const a = c.admissions as unknown as { policy_number: string | null; member_id: string | null; ip_number: string | null; discharge_date: string | null; diagnosis: string | null; treatment: string | null; insurer_id: string | null; tpa_id: string | null } | null;
-  const { count } = await sb.from("preauths").select("id", { count: "exact", head: true })
-    .eq("admission_id", c.admission_id).eq("status", "approved");
   const r = computeReadiness({
     policy_number: a?.policy_number, member_id: a?.member_id, ip_number: a?.ip_number,
     discharge_date: a?.discharge_date, diagnosis: a?.diagnosis, treatment: a?.treatment,
     has_payer: !!(a?.insurer_id || a?.tpa_id),
-    preauth_approved: (count ?? 0) > 0 || Number(c.approved_amount) > 0,
     claimed_amount: Number(c.claimed_amount),
-    document_submitted_at: c.document_submitted_at,
   });
-  await sb.from("claims").update({ readiness_score: r.score, readiness_gaps: r.gaps }).eq("id", claimId);
+  const { error } = await sb.from("claims").update({ readiness_score: r.score, readiness_gaps: r.gaps }).eq("id", claimId);
+  if (error) console.error("refreshReadiness", error.message);
 }
 
 /* ================================================================ patients */
@@ -101,7 +98,7 @@ export const listAdmissions = createServerFn({ method: "GET" })
     const page = Math.max(1, data.page ?? 1);
     let q = context.supabase
       .from("admissions")
-      .select("id, ip_number, admission_date, discharge_date, status, treatment, diagnosis, policy_number, policy_type, hospital_id, patients(full_name, uhid), hospitals(name), insurers(name), tpas(name), claims(id, claim_code, status), preauths(status, approved_amount)", { count: "exact" })
+      .select("id, ip_number, admission_date, discharge_date, status, treatment, diagnosis, policy_number, policy_type, hospital_id, patients(full_name, uhid), hospitals(name), insurers(name), tpas(name), claims(id, claim_code, status)", { count: "exact" })
       .is("deleted_at", null)
       .order("admission_date", { ascending: false })
       .range((page - 1) * PAGE, page * PAGE - 1);
@@ -212,72 +209,7 @@ export const dischargeAdmission = createServerFn({ method: "POST" })
     return { claimId: claim.id as string, created: true };
   });
 
-/* ================================================================ pre-auth */
 
-export const listPreauths = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { status?: string; page?: number }) => d)
-  .handler(async ({ context, data }) => {
-    const page = Math.max(1, data.page ?? 1);
-    let q = context.supabase.from("preauths")
-      .select("id, reference_no, kind, requested_amount, approved_amount, status, requested_at, decided_at, remarks, admission_id, admissions(ip_number, patients(full_name), hospitals(name), insurers(name), tpas(name))", { count: "exact" })
-      .order("requested_at", { ascending: false })
-      .range((page - 1) * PAGE, page * PAGE - 1);
-    if (data.status && data.status !== "all") q = q.eq("status", data.status);
-    const { data: rows, count, error } = await q;
-    if (error) throw new Error("You do not have permission to view pre-authorisations.");
-    return { rows: (rows ?? []) as any[], total: count ?? 0, pageSize: PAGE };
-  });
-
-export const createPreauth = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
-    admissionId: z.string().uuid(), kind: z.enum(["initial", "enhancement", "final"]),
-    requested_amount: z.number().min(0).max(1e9), reference_no: z.string().max(100).nullable().optional(),
-  }).parse(d))
-  .handler(async ({ context, data }) => {
-    const sb = context.supabase;
-    const { data: a } = await sb.from("admissions").select("organization_id, hospital_id, branch_id, ip_number, patients(full_name)").eq("id", data.admissionId).maybeSingle();
-    if (!a) throw new Error("Admission not found.");
-    const { data: pa, error } = await sb.from("preauths").insert({
-      organization_id: a.organization_id, hospital_id: a.hospital_id, admission_id: data.admissionId,
-      kind: data.kind, requested_amount: data.requested_amount, reference_no: data.reference_no || null,
-      created_by: context.userId,
-    }).select("id").single();
-    if (error) throw new Error(friendly(error.message, "pre-auth"));
-    const pname = (a.patients as unknown as { full_name: string } | null)?.full_name ?? "patient";
-    await sb.from("tasks").insert({
-      organization_id: a.organization_id, hospital_id: a.hospital_id, branch_id: a.branch_id,
-      entity_type: "preauth", entity_id: pa.id, title: `Pre-auth decision pending — ${pname}${a.ip_number ? ` (IP ${a.ip_number})` : ""}`,
-      task_type: "preauth", priority: "high", amount_at_stake: data.requested_amount,
-      due_at: inHours(await slaHours(sb, "preauth", a.hospital_id, data.admissionId, 4)), created_by: context.userId,
-    });
-    return { ok: true };
-  });
-
-export const decidePreauth = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
-    preauthId: z.string().uuid(), status: z.enum(["requested", "query", "approved", "rejected"]),
-    approved_amount: z.number().min(0).max(1e9).nullable().optional(), remarks: z.string().max(1000).nullable().optional(),
-  }).parse(d))
-  .handler(async ({ context, data }) => {
-    const sb = context.supabase;
-    if (data.status === "approved" && !data.approved_amount) throw new Error("Enter the approved amount.");
-    const { data: p, error } = await sb.from("preauths").update({
-      status: data.status, approved_amount: data.status === "approved" ? (data.approved_amount ?? null) : null,
-      remarks: data.remarks || null, decided_at: ["approved", "rejected"].includes(data.status) ? new Date().toISOString() : null,
-      updated_by: context.userId,
-    }).eq("id", data.preauthId).select("admission_id").single();
-    if (error) throw new Error(friendly(error.message, "pre-auth"));
-    if (["approved", "rejected"].includes(data.status)) {
-      await sb.from("tasks").update({ status: "completed", completed_at: new Date().toISOString(), updated_by: context.userId })
-        .eq("entity_type", "preauth").eq("entity_id", data.preauthId).in("status", ACTIVE_TASK_STATUSES);
-    }
-    const { data: claims } = await sb.from("claims").select("id").eq("admission_id", p.admission_id);
-    for (const c of claims ?? []) await refreshReadiness(sb, c.id);
-    return { ok: true };
-  });
 
 /* ================================================================== claims */
 
@@ -319,12 +251,11 @@ export const getClaimDetail = createServerFn({ method: "GET" })
       .select("*, hospitals(name, rohini_id), patients(id, full_name, uhid, phone, member_id), admissions(*, insurers(name), tpas(name)), profiles:assigned_to(id, full_name)")
       .eq("id", data.claimId).maybeSingle();
     if (error || !claim) throw new Error("This claim does not exist or you do not have access to it.");
-    const [history, notes, payments, couriers, preauths, tasks, queries, followups, escalations] = await Promise.all([
+    const [history, notes, payments, couriers, tasks, queries, followups, escalations] = await Promise.all([
       sb.from("claim_status_history").select("*").eq("claim_id", claim.id).order("created_at"),
       sb.from("claim_notes").select("*").eq("claim_id", claim.id).order("created_at"),
       sb.from("claim_payments").select("*").eq("claim_id", claim.id).order("payment_date"),
       sb.from("claim_couriers").select("*").eq("claim_id", claim.id),
-      sb.from("preauths").select("*").eq("admission_id", claim.admission_id).order("requested_at"),
       sb.from("tasks").select("id, title, status, priority, due_at, task_type, profiles:assigned_to(full_name)").eq("claim_id", claim.id).order("created_at", { ascending: false }),
       sb.from("claim_queries").select("*").eq("claim_id", claim.id).order("raised_at", { ascending: false }),
       sb.from("claim_followups").select("*").eq("claim_id", claim.id).order("created_at", { ascending: false }),
@@ -333,7 +264,7 @@ export const getClaimDetail = createServerFn({ method: "GET" })
     return {
       claim: claim as any,
       history: history.data ?? [], notes: notes.data ?? [], payments: payments.data ?? [],
-      couriers: couriers.data ?? [], preauths: preauths.data ?? [], tasks: (tasks.data ?? []) as any[],
+      couriers: couriers.data ?? [], tasks: (tasks.data ?? []) as any[],
       queries: queries.data ?? [], followups: followups.data ?? [], escalations: escalations.data ?? [],
     };
   });
@@ -356,7 +287,8 @@ export const runClaimAction = createServerFn({ method: "POST" })
     if (!def.from.includes(c.status)) throw new Error(`"${def.label}" is not possible while the claim is ${c.status.replace(/_/g, " ")}.`);
     if ((data.action === "record_query" || data.action === "deny") && !data.note?.trim())
       throw new Error("Please describe the query or denial reason.");
-    if (data.action === "approve" && !data.approved_amount) throw new Error("Enter the approved amount.");
+    if ((data.action === "approve" || data.action === "partial_reject") && !data.approved_amount) throw new Error("Enter the approved amount.");
+    if (data.action === "partial_reject" && !data.note?.trim()) throw new Error("Please give the rejection reason.");
     if (data.action === "reply_query" && !data.note?.trim()) throw new Error("Write the reply you sent to the payer.");
     const sla: Partial<Record<ClaimAction, [string, number]>> = {
       submit: ["settlement", 1080], record_query: ["query_response", 48], reply_query: ["settlement", 1080], approve: ["payment", 720],
@@ -369,10 +301,10 @@ export const runClaimAction = createServerFn({ method: "POST" })
       patch.document_submitted_at = new Date().toISOString().slice(0, 10);
       if (data.external_claim_no) patch.external_claim_no = data.external_claim_no;
     }
-    if (data.action === "approve") patch.approved_amount = data.approved_amount ?? 0;
+    if (data.action === "approve" || data.action === "partial_reject") patch.approved_amount = data.approved_amount ?? 0;
     if (slaDef && slaH) { patch.sla_process = slaDef[0]; patch.sla_due_at = inHours(slaH); }
     if (["settle", "close", "deny", "mark_short_paid"].includes(data.action)) { patch.sla_process = null; patch.sla_due_at = null; }
-    if (data.action === "deny" || data.action === "record_query") patch.insurer_comments = data.note ?? null;
+    if (data.action === "deny" || data.action === "partial_reject" || data.action === "record_query") patch.insurer_comments = data.note ?? null;
     const { error } = await sb.from("claims").update(patch).eq("id", c.id);
     if (error) throw new Error(friendly(error.message, "claim"));
 
@@ -404,6 +336,8 @@ export const runClaimAction = createServerFn({ method: "POST" })
     const next: Partial<Record<ClaimAction, { title: string; type: string; hours: number; priority?: string }>> = {
       record_query: { title: `Reply to payer query — ${c.claim_code}`, type: "query", hours: slaH ?? 48, priority: "high" },
       deny: { title: `Review denial — ${c.claim_code}`, type: "denial", hours: 72, priority: "high" },
+      partial_reject: { title: `Review partial rejection — ${c.claim_code}`, type: "denial", hours: 72, priority: "high" },
+      appeal: { title: `Follow up appeal — ${c.claim_code}`, type: "appeal_followup", hours: 24 * 15, priority: "high" },
       approve: { title: `Follow up payment — ${c.claim_code}`, type: "payment_followup", hours: slaH ?? 720 },
       mark_short_paid: { title: `Recover short payment — ${c.claim_code}`, type: "short_payment", hours: 24 * 7, priority: "high" },
     };
@@ -559,7 +493,14 @@ export const listTasks = createServerFn({ method: "GET" })
       case "high_value": q = q.gte("amount_at_stake", 100000); break;
       case "query": q = q.eq("task_type", "query"); break;
       case "followup": q = q.in("task_type", ["payer_followup", "commitment_missed", "payment_followup"]); break;
-      case "preauth": q = q.eq("task_type", "preauth"); break;
+      case "team": {
+        const { data: mine } = await context.supabase.from("team_members").select("team_id").eq("user_id", context.userId);
+        const teamIds = (mine ?? []).map((m) => m.team_id);
+        const { data: mates } = teamIds.length ? await context.supabase.from("team_members").select("user_id").in("team_id", teamIds) : { data: [] as { user_id: string }[] };
+        const ids = [...new Set([context.userId, ...(mates ?? []).map((m) => m.user_id)])];
+        q = q.or(`assigned_to.in.(${ids.join(",")})${teamIds.length ? `,team_id.in.(${teamIds.join(",")})` : ""}`);
+        break;
+      }
       case "escalated": q = q.eq("status", "escalated"); break;
     }
     const { data: rows, count, error } = await q;
@@ -616,7 +557,7 @@ export const getClaimStats = createServerFn({ method: "GET" })
         totals.count++;
         byStatus[c.status] = (byStatus[c.status] ?? 0) + 1;
         if (OPEN_CLAIM_STATUSES.includes(c.status)) { totals.open++; if (c.readiness_score < 75) totals.notReady++; }
-        if (c.status === "denied" || c.status === "preauth_rejected") totals.denied++;
+        if (c.status === "denied" || c.status === "partially_rejected") totals.denied++;
         totals.claimed += Number(c.claimed_amount); totals.approved += Number(c.approved_amount);
         totals.settled += Number(c.settled_amount);
         if (c.status === "short_paid") totals.short += Number(c.short_payment);
@@ -812,10 +753,6 @@ export const importClaims = createServerFn({ method: "POST" })
           const { data: a, error } = await sb.from("admissions").insert({ ...admPatch, created_by: context.userId }).select("id").single();
           if (error) throw error;
           admissionId = a.id;
-        }
-        if (mapped.status === "preauth_rejected") {
-          const { count } = await sb.from("preauths").select("id", { count: "exact", head: true }).eq("admission_id", admissionId!).eq("status", "rejected");
-          if (!count) await sb.from("preauths").insert({ organization_id: org, hospital_id: hospital.id, admission_id: admissionId!, status: "rejected", requested_amount: r.claimed_amount, decided_at: new Date().toISOString(), remarks: "Imported", created_by: context.userId });
         }
         // claim
         const claimPatch = {

@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
   getClaimDetail, getClaimStats, listAdmissions, listAssignees, listClaims, listImportJobs,
-  listPatients, listPreauths, listTasks,
+  listPatients, listTasks,
 } from "./claims.functions";
 
 type P = Record<string, string | number | undefined>;
@@ -12,8 +12,6 @@ export const patientsQuery = (p: { search?: string; page?: number }) =>
   queryOptions({ queryKey: ["patients", p], queryFn: () => listPatients({ data: clean(p) }) });
 export const admissionsQuery = (p: { search?: string; status?: string; page?: number }) =>
   queryOptions({ queryKey: ["admissions", p], queryFn: () => listAdmissions({ data: clean(p) }) });
-export const preauthsQuery = (p: { status?: string; page?: number }) =>
-  queryOptions({ queryKey: ["preauths", p], queryFn: () => listPreauths({ data: clean(p) }) });
 export const claimsQuery = (p: { search?: string; status?: string; readiness?: string; hospitalId?: string; from?: string; to?: string; page?: number }) =>
   queryOptions({ queryKey: ["claims", p], queryFn: () => listClaims({ data: clean(p) }) });
 export const claimDetailQuery = (claimId: string) =>

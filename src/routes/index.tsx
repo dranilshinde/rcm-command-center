@@ -39,14 +39,14 @@ function Landing() {
 
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-10">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sidebar-primary">
-          Phase 1 — Platform foundation
+          Post-discharge claims & settlement
         </p>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight text-sidebar-accent-foreground md:text-5xl">
           A revenue cycle operating system for hospital groups, not another claims spreadsheet.
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] text-sidebar-foreground/75">
-          RCM Buddy runs the full cashless cycle — admission to reconciliation — across groups, hospitals,
-          branches, departments and teams, with strict data separation between hospitals.
+          RCM Buddy runs everything after discharge — handover, claim preparation, submission, queries, follow-up,
+          settlement, denials and reconciliation — across hospital groups, with strict data separation between hospitals.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link

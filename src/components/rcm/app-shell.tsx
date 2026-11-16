@@ -21,11 +21,9 @@ const NAV: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Dashboard", to: "/dashboard", icon: Gauge },
-      { label: "Command Center", icon: Activity, phase: 4 },
       { label: "Work Queue", to: "/work-queue", icon: ListChecks },
       { label: "Claims", to: "/claims", icon: FileStack },
-      { label: "Admissions", to: "/admissions", icon: HeartPulse },
-      { label: "Pre-Authorisation", to: "/preauth", icon: ClipboardList },
+      { label: "Discharge Handover", to: "/admissions", icon: HeartPulse },
       { label: "Patients", to: "/patients", icon: Users },
       { label: "Import Claims", to: "/imports", icon: Database },
       { label: "Payer Queries", to: "/queries", icon: HeartPulse },
@@ -40,7 +38,6 @@ const NAV: NavSection[] = [
       { label: "Settlements", to: "/settlements", icon: Receipt },
       { label: "Reconciliation", to: "/reconciliation", icon: Landmark },
       { label: "Denials & Recovery", to: "/denials", icon: ShieldCheck },
-      { label: "Analytics", icon: LineChart, phase: 7 },
     ],
   },
   {

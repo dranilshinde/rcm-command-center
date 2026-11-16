@@ -1,3 +1,4 @@
+import { outstandingAmount } from "./rcm-definitions";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -90,7 +91,7 @@ export const getFollowupCenter = createServerFn({ method: "GET" })
     const page = Math.max(1, data.page ?? 1);
     const pendingStatuses = ["submitted", "query", "query_replied", "approved", "short_paid"];
     const { data: rows, count, error } = await sb.from("claims")
-      .select("id, claim_code, status, claimed_amount, approved_amount, settled_amount, last_status_at, document_submitted_at, next_followup_at, sla_due_at, escalation_level, hospitals(name), patients(full_name), admissions(insurers(name), tpas(name)), profiles:assigned_to(full_name), claim_followups(created_at, outcome, commitment_date)", { count: "exact" })
+      .select("id, claim_code, status, claimed_amount, approved_amount, settled_amount, tds_amount, last_status_at, document_submitted_at, next_followup_at, sla_due_at, escalation_level, hospitals(name), patients(full_name), admissions(insurers(name), tpas(name)), profiles:assigned_to(full_name), claim_followups(created_at, outcome, commitment_date)", { count: "exact" })
       .is("deleted_at", null).in("status", pendingStatuses)
       .order("next_followup_at", { ascending: true, nullsFirst: true })
       .order("last_status_at", { ascending: true })
@@ -107,13 +108,13 @@ export const getFollowupCenter = createServerFn({ method: "GET" })
     const byPayer = new Map<string, { payer: string; claims: number; pending: number; oldestDays: number }>();
     for (let from = 0; from < 20000; from += 1000) {
       const { data: chunk } = await sb.from("claims")
-        .select("claimed_amount, approved_amount, settled_amount, document_submitted_at, created_at, admissions(insurers(name), tpas(name))")
+        .select("claimed_amount, approved_amount, settled_amount, tds_amount, document_submitted_at, created_at, admissions(insurers(name), tpas(name))")
         .is("deleted_at", null).in("status", pendingStatuses).range(from, from + 999);
       for (const c of (chunk ?? []) as any[]) {
         const payer = c.admissions?.tpas?.name ?? c.admissions?.insurers?.name ?? "Payer not set";
         const e = byPayer.get(payer) ?? { payer, claims: 0, pending: 0, oldestDays: 0 };
         e.claims++;
-        e.pending += Math.max(Number(c.approved_amount || c.claimed_amount) - Number(c.settled_amount), 0);
+        e.pending += outstandingAmount(c);
         const age = Math.floor((Date.now() - new Date(c.document_submitted_at ?? c.created_at).getTime()) / 864e5);
         e.oldestDays = Math.max(e.oldestDays, age);
         byPayer.set(payer, e);
@@ -193,7 +194,7 @@ async function orgFor(sb: any, userId: string, hospitalId: string | null) {
 export const saveSlaRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
-    id: z.string().uuid().nullable(), process: z.enum(["preauth", "query_response", "submission", "payment", "settlement"]),
+    id: z.string().uuid().nullable(), process: z.enum(["query_response", "submission", "payment", "settlement"]),
     target_hours: z.number().int().min(1).max(24 * 365), description: z.string().max(300).nullable(), ...scope,
   }).parse(d))
   .handler(async ({ context, data }) => {

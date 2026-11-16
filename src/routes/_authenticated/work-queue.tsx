@@ -35,7 +35,6 @@ const VIEWS: { key: string; label: string; count?: "mine" | "unassigned" | "over
   { key: "high_value", label: "High value (₹1L+)" },
   { key: "query", label: "Query pending" },
   { key: "followup", label: "Payer follow-ups" },
-  { key: "preauth", label: "Pre-auth pending" },
   { key: "escalated", label: "Escalated" },
   { key: "completed", label: "Completed" },
 ];
@@ -50,7 +49,7 @@ function WorkQueue() {
 
   return (
     <div>
-      <PageHeader title="Work Queue" description="Tasks are created automatically from claims and your SLA and reminder rules: discharge, pre-auth, payer queries, quiet claims, missed commitments, denials and short payments." />
+      <PageHeader title="Work Queue" description="Tasks are created automatically from claims and your SLA and reminder rules: discharge handover, payer queries, quiet claims, missed commitments, denials and short payments." />
       <div className="mb-3 flex flex-wrap gap-1">
         {VIEWS.map((v) => (
           <button key={v.key} onClick={() => { setView(v.key); setPage(1); setSel([]); }}

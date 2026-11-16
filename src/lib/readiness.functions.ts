@@ -37,6 +37,13 @@ async function buildSnapshot(sb: any, hospitalId: string) {
     sb.from("tpas").select("id", { count: "exact", head: true }),
     sb.from("tpa_spocs").select("id", { count: "exact", head: true }).eq("hospital_id", hospitalId),
   ]);
+  const [slaC, remC, clC, escC] = await Promise.all([
+    sb.from("sla_rules").select("id", { count: "exact", head: true }).eq("is_active", true),
+    sb.from("reminder_rules").select("id", { count: "exact", head: true }).eq("is_active", true),
+    sb.from("claims").select("id", { count: "exact", head: true }).eq("hospital_id", hospitalId).is("deleted_at", null),
+    sb.from("escalations").select("id", { count: "exact", head: true }).eq("hospital_id", hospitalId).eq("status", "open"),
+  ]);
+  const activity = { active_sla_rules: slaC.count ?? 0, active_reminder_and_escalation_rules: remC.count ?? 0, claims_for_this_hospital: clC.count ?? 0, open_escalations: escC.count ?? 0 };
   const g = hospital.hospital_groups as { name: string; code: string; headquarters_city: string | null } | null;
   return {
     hospital: {
@@ -51,7 +58,8 @@ async function buildSnapshot(sb: any, hospitalId: string) {
     admin_invitations: (inv.data ?? []).map((i: any) => ({ role: i.role_key, status: i.status, times_sent: i.send_count })),
     onboarding_checklist: (st.data ?? []).map((s: any) => ({ step: s.title, status: s.status })),
     payer_network: { insurers_on_platform: ins.count ?? 0, tpas_on_platform: tpa.count ?? 0, tpa_contacts_for_this_hospital: sp.count ?? 0 },
-    not_yet_available_in_platform: ["tariffs", "SLA rules", "escalation rules", "claims"],
+    platform_activity: activity,
+    not_yet_available_in_platform: ["tariffs", "claim documents"],
   };
 }
 

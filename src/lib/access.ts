@@ -4,8 +4,6 @@ export const PAGE_MODULE: Record<string, string> = {
   "/dashboard": "dashboard",
   "/work-queue": "work_queue",
   "/claims": "claims",
-  "/admissions": "claims",
-  "/preauth": "preauth",
   "/patients": "patients",
   "/imports": "claims",
   "/queries": "queries",
@@ -40,7 +38,7 @@ export function isPageLocked(path: string, s: { isSuperAdmin: boolean; permissio
 }
 
 export const PAGE_LABEL: Record<string, string> = {
-  dashboard: "Dashboard", work_queue: "Work Queue", claims: "Claims, Admissions & Import", preauth: "Pre-Authorisation",
+  dashboard: "Dashboard", work_queue: "Work Queue", claims: "Claims & Import",
   patients: "Patients", queries: "Payer Queries", followups: "Payer Follow-ups", tasks: "Escalations",
   ar: "AR Management", settlements: "Settlements", reconciliation: "Reconciliation", denials: "Denials & Recovery",
   hospitals: "Hospitals & Onboarding", payers: "Payers & TPAs", users: "Users & Team Members",

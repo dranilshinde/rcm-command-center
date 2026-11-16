@@ -10,17 +10,17 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createAdmission, createPreauth, dischargeAdmission } from "@/lib/claims.functions";
+import { createAdmission, dischargeAdmission } from "@/lib/claims.functions";
 import { admissionsQuery } from "@/lib/claims-queries";
 import { payersQuery, sessionQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/admissions")({
   head: () => ({
     meta: [
-      { title: "Admissions & Discharge — RCM Buddy" },
-      { name: "description", content: "Insured in-patient admissions, pre-auth requests and discharges that start the claim." },
-      { property: "og:title", content: "Admissions & Discharge — RCM Buddy" },
-      { property: "og:description", content: "Admissions, pre-auth and discharge for cashless patients." },
+      { title: "Discharge Handover — RCM Buddy" },
+      { name: "description", content: "Discharged insured cases handed over to the RCM team; each discharge starts its claim." },
+      { property: "og:title", content: "Discharge Handover — RCM Buddy" },
+      { property: "og:description", content: "Discharged cases handed over for claim preparation." },
     ],
   }),
   component: Admissions,
@@ -35,7 +35,7 @@ function Admissions() {
   return (
     <div>
       <PageHeader
-        title="Admissions & Discharge"
+        title="Discharge Handover"
         description="Discharging a patient creates the claim automatically and adds a “prepare claim” task to the work queue."
         actions={<NewAdmissionDialog />}
       />
@@ -52,11 +52,10 @@ function Admissions() {
         <span className="tnum text-[12px] text-muted-foreground">{isFetching ? "Loading…" : `${data?.total ?? 0} admissions`}</span>
       </div>
       {error ? <EmptyState title="Could not load admissions" description={(error as Error).message} /> :
-        rows.length === 0 ? <EmptyState title="No admissions yet" description="Add an admission, or import your claims sheet." action={<NewAdmissionDialog />} /> : (
-          <DataTable head={["IP no.", "Patient", "Hospital", "Payer", "Admitted", "Discharged", "Pre-auth", "Status", "Claim", ""]}>
+        rows.length === 0 ? <EmptyState title="No cases yet" description="Record a discharged case, or import your claims sheet." action={<NewAdmissionDialog />} /> : (
+          <DataTable head={["IP no.", "Patient", "Hospital", "Payer", "Admitted", "Discharged", "Status", "Claim", ""]}>
             {rows.map((a) => {
               const claim = a.claims?.[0];
-              const pa = a.preauths?.[a.preauths.length - 1];
               return (
                 <tr key={a.id} className={tr}>
                   <td className={`${td} tnum font-medium`}>{a.ip_number ?? "—"}</td>
@@ -65,11 +64,9 @@ function Admissions() {
                   <td className={`${td} text-muted-foreground`}>{a.tpas?.name ?? a.insurers?.name ?? "—"}</td>
                   <td className={`${td} tnum`}>{fmtDate(a.admission_date)}</td>
                   <td className={`${td} tnum`}>{fmtDate(a.discharge_date)}</td>
-                  <td className={td}>{pa ? <Chip value={pa.status} /> : <span className="text-muted-foreground">—</span>}</td>
                   <td className={td}><Chip value={a.status} /></td>
                   <td className={td}>{claim ? <Link to="/claims/$claimId" params={{ claimId: claim.id }} className="tnum text-primary hover:underline">{claim.claim_code}</Link> : "—"}</td>
                   <td className={`${td} whitespace-nowrap text-right`}>
-                    <PreauthDialog admissionId={a.id} />
                     {a.status === "admitted" ? <DischargeDialog admissionId={a.id} admissionDate={a.admission_date} /> : null}
                   </td>
                 </tr>
@@ -117,9 +114,9 @@ function NewAdmissionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button size="sm">New admission</Button></DialogTrigger>
+      <DialogTrigger asChild><Button size="sm">New discharged case</Button></DialogTrigger>
       <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>New admission</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New discharged case</DialogTitle></DialogHeader>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2"><Label>Hospital</Label>
             <Select value={f.hospitalId} onValueChange={(v) => setF({ ...f, hospitalId: v })}>
@@ -156,7 +153,7 @@ function NewAdmissionDialog() {
             </Select>
           </div>
         </div>
-        <DialogFooter><Button onClick={submit} disabled={busy}>{busy ? "Saving…" : "Add admission"}</Button></DialogFooter>
+        <DialogFooter><Button onClick={submit} disabled={busy}>{busy ? "Saving…" : "Save case"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -195,42 +192,3 @@ function DischargeDialog({ admissionId, admissionDate }: { admissionId: string; 
   );
 }
 
-function PreauthDialog({ admissionId }: { admissionId: string }) {
-  const qc = useQueryClient();
-  const create = useServerFn(createPreauth);
-  const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<"initial" | "enhancement" | "final">("initial");
-  const [amount, setAmount] = useState("");
-  const [ref, setRef] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function submit() {
-    if (!(Number(amount) > 0)) { toast.error("Enter the requested amount."); return; }
-    setBusy(true);
-    try {
-      await create({ data: { admissionId, kind, requested_amount: Number(amount), reference_no: ref || null } });
-      toast.success("Pre-auth request recorded");
-      qc.invalidateQueries({ queryKey: ["admissions"] });
-      qc.invalidateQueries({ queryKey: ["preauths"] });
-      setOpen(false);
-    } catch (e) { toast.error(errMsg(e)); } finally { setBusy(false); }
-  }
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button size="sm" variant="ghost" className="h-7">Pre-auth</Button></DialogTrigger>
-      <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Record pre-auth request</DialogTitle></DialogHeader>
-        <div className="space-y-3">
-          <div><Label>Type</Label>
-            <Select value={kind} onValueChange={(v) => setKind(v as typeof kind)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="initial">Initial</SelectItem><SelectItem value="enhancement">Enhancement</SelectItem><SelectItem value="final">Final</SelectItem></SelectContent>
-            </Select>
-          </div>
-          <div><Label>Requested amount (₹)</Label><Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
-          <div><Label>Payer reference no.</Label><Input value={ref} onChange={(e) => setRef(e.target.value)} /></div>
-        </div>
-        <DialogFooter><Button onClick={submit} disabled={busy}>{busy ? "Saving…" : "Save request"}</Button></DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}

@@ -27,7 +27,6 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
 import { Route as AuthenticatedPayersRouteImport } from './routes/_authenticated/payers'
-import { Route as AuthenticatedPreauthRouteImport } from './routes/_authenticated/preauth'
 import { Route as AuthenticatedQueriesRouteImport } from './routes/_authenticated/queries'
 import { Route as AuthenticatedReconciliationRouteImport } from './routes/_authenticated/reconciliation'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
@@ -137,11 +136,6 @@ const AuthenticatedPayersRoute = AuthenticatedPayersRouteImport.update({
   path: '/payers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedPreauthRoute = AuthenticatedPreauthRouteImport.update({
-  id: '/preauth',
-  path: '/preauth',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedQueriesRoute = AuthenticatedQueriesRouteImport.update({
   id: '/queries',
   path: '/queries',
@@ -244,7 +238,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRouteWithChildren
-  '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
   '/reconciliation': typeof AuthenticatedReconciliationRoute
   '/roles': typeof AuthenticatedRolesRoute
@@ -279,7 +272,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/patients': typeof AuthenticatedPatientsRoute
   '/payers': typeof AuthenticatedPayersRouteWithChildren
-  '/preauth': typeof AuthenticatedPreauthRoute
   '/queries': typeof AuthenticatedQueriesRoute
   '/reconciliation': typeof AuthenticatedReconciliationRoute
   '/roles': typeof AuthenticatedRolesRoute
@@ -316,7 +308,6 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRoute
   '/_authenticated/payers': typeof AuthenticatedPayersRouteWithChildren
-  '/_authenticated/preauth': typeof AuthenticatedPreauthRoute
   '/_authenticated/queries': typeof AuthenticatedQueriesRoute
   '/_authenticated/reconciliation': typeof AuthenticatedReconciliationRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
@@ -353,7 +344,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/patients'
     | '/payers'
-    | '/preauth'
     | '/queries'
     | '/reconciliation'
     | '/roles'
@@ -388,7 +378,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/patients'
     | '/payers'
-    | '/preauth'
     | '/queries'
     | '/reconciliation'
     | '/roles'
@@ -424,7 +413,6 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/patients'
     | '/_authenticated/payers'
-    | '/_authenticated/preauth'
     | '/_authenticated/queries'
     | '/_authenticated/reconciliation'
     | '/_authenticated/roles'
@@ -576,13 +564,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPayersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/preauth': {
-      id: '/_authenticated/preauth'
-      path: '/preauth'
-      fullPath: '/preauth'
-      preLoaderRoute: typeof AuthenticatedPreauthRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/queries': {
       id: '/_authenticated/queries'
       path: '/queries'
@@ -718,7 +699,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
   AuthenticatedPayersRoute: typeof AuthenticatedPayersRouteWithChildren
-  AuthenticatedPreauthRoute: typeof AuthenticatedPreauthRoute
   AuthenticatedQueriesRoute: typeof AuthenticatedQueriesRoute
   AuthenticatedReconciliationRoute: typeof AuthenticatedReconciliationRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
@@ -751,7 +731,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
   AuthenticatedPayersRoute: AuthenticatedPayersRouteWithChildren,
-  AuthenticatedPreauthRoute: AuthenticatedPreauthRoute,
   AuthenticatedQueriesRoute: AuthenticatedQueriesRoute,
   AuthenticatedReconciliationRoute: AuthenticatedReconciliationRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,

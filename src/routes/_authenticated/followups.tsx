@@ -1,3 +1,4 @@
+import { outstandingAmount } from "@/lib/rcm-definitions";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -61,7 +62,7 @@ function Followups() {
                     <td className={td}>{c.patients?.full_name}</td>
                     <td className={`${td} max-w-40 truncate text-muted-foreground`}>{c.admissions?.tpas?.name ?? c.admissions?.insurers?.name ?? "—"}</td>
                     <td className={td}><Chip value={c.status} /></td>
-                    <td className={`${td} tnum`}>{inr(Math.max(Number(c.approved_amount || c.claimed_amount) - Number(c.settled_amount), 0))}</td>
+                    <td className={`${td} tnum`}>{inr(outstandingAmount(c))}</td>
                     <td className={`${td} tnum`}>{days(c.document_submitted_at) ?? "—"}</td>
                     <td className={`${td} text-[12px]`}>{last ? <>{fmtDate(last.created_at)}<p className="text-muted-foreground">{OUTCOME_LABEL[last.outcome] ?? last.outcome}</p></> : <span className="text-muted-foreground">Never</span>}</td>
                     <td className={cn(td, "tnum", due && "font-semibold text-risk")}>{c.next_followup_at ? fmtDate(c.next_followup_at) : "—"}</td>

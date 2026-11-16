@@ -3111,6 +3111,10 @@ export type Database = {
         Args: { _organization_id: string; _user_id: string }
         Returns: boolean
       }
+      claim_outstanding: {
+        Args: { _approved: number; _settled: number; _tds: number }
+        Returns: number
+      }
       has_permission: {
         Args: { _action: string; _module: string; _user_id: string }
         Returns: boolean
@@ -3158,11 +3162,27 @@ export type Database = {
         Args: { _hosp: string; _ins: string; _level: number; _tpa: string }
         Returns: string
       }
+      reconcile_receipt: {
+        Args: { _claim: string; _receipt: string; _tds: number }
+        Returns: Json
+      }
       role_recipients: {
         Args: { _hosp: string; _roles: string[] }
         Returns: string[]
       }
       run_rcm_engine: { Args: never; Returns: Json }
+      save_denial_outcome: {
+        Args: {
+          _appeal: string
+          _category: string
+          _id: string
+          _note: string
+          _reason: string
+          _recovered: number
+          _status: string
+        }
+        Returns: Json
+      }
       sla_hours: {
         Args: {
           _default: number

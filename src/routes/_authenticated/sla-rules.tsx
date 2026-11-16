@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/sla-rules")({
 });
 
 const PROCESS_LABEL: Record<string, string> = {
-  preauth: "Pre-auth decision", query_response: "Reply to payer query", submission: "Submit claim after discharge",
+  query_response: "Reply to payer query", submission: "Submit claim after discharge",
   payment: "Payment after approval", settlement: "Settlement after submission",
 };
 const RULE_LABEL: Record<string, string> = {

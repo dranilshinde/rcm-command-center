@@ -15,3 +15,5 @@
 
 - Role rules: platform defaults in role_permissions; per-hospital overrides in hospital_role_permissions, resolved inside has_permission/my_permissions so RLS and UI share one rule.
 - Locked pages are derived from MODULE.VIEW via src/lib/access.ts PAGE_MODULE; one map drives nav locks and the page lock screen.
+- Shared RCM definitions (statuses, task types, categories, ageing buckets, outstanding) live only in src/lib/rcm-definitions.ts, mirrored by SQL claim_outstanding(); one definition prevents pages disagreeing.
+- Multi-table money changes (bank match, denial outcome) run in SQL functions reconcile_receipt / save_denial_outcome so they are atomic.
