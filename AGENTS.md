@@ -17,3 +17,5 @@
 - Locked pages are derived from MODULE.VIEW via src/lib/access.ts PAGE_MODULE; one map drives nav locks and the page lock screen.
 - Shared RCM definitions (statuses, task types, categories, ageing buckets, outstanding) live only in src/lib/rcm-definitions.ts, mirrored by SQL claim_outstanding(); one definition prevents pages disagreeing.
 - Multi-table money changes (bank match, denial outcome) run in SQL functions reconcile_receipt / save_denial_outcome so they are atomic.
+- Hospital mailbox grants are encrypted in server-only app_user_connections and bound to the authorising user, provider and hospital; every operation verifies hospital-admin access before privileged reads, preventing cross-hospital credential reuse.
+- Mailbox consent completes through a public no-write return page and an authenticated, expiring, single-use hospital-bound intent; only the signed-in opener exchanges and stores credentials.

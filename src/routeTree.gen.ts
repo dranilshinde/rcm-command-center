@@ -41,6 +41,7 @@ import { Route as AuthenticatedClaimsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedClaimsClaimIdRouteImport } from './routes/_authenticated/claims.$claimId'
 import { Route as AuthenticatedHospitalsIndexRouteImport } from './routes/_authenticated/hospitals.index'
 import { Route as AuthenticatedHospitalsHospitalIdRouteImport } from './routes/_authenticated/hospitals.$hospitalId'
+import { Route as ApiPublicMailboxReturnRouteImport } from './routes/api/public/mailbox-return'
 import { Route as AuthenticatedPayersKindPayerIdRouteImport } from './routes/_authenticated/payers.$kind.$payerId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -213,6 +214,11 @@ const AuthenticatedHospitalsHospitalIdRoute =
     path: '/hospitals/$hospitalId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicMailboxReturnRoute = ApiPublicMailboxReturnRouteImport.update({
+  id: '/api/public/mailbox-return',
+  path: '/api/public/mailbox-return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPayersKindPayerIdRoute =
   AuthenticatedPayersKindPayerIdRouteImport.update({
     id: '/$kind/$payerId',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
+  '/api/public/mailbox-return': typeof ApiPublicMailboxReturnRoute
   '/claims/': typeof AuthenticatedClaimsIndexRoute
   '/hospitals/': typeof AuthenticatedHospitalsIndexRoute
   '/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/work-queue': typeof AuthenticatedWorkQueueRoute
   '/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
+  '/api/public/mailbox-return': typeof ApiPublicMailboxReturnRoute
   '/claims': typeof AuthenticatedClaimsIndexRoute
   '/hospitals': typeof AuthenticatedHospitalsIndexRoute
   '/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/_authenticated/work-queue': typeof AuthenticatedWorkQueueRoute
   '/_authenticated/claims/$claimId': typeof AuthenticatedClaimsClaimIdRoute
   '/_authenticated/hospitals/$hospitalId': typeof AuthenticatedHospitalsHospitalIdRoute
+  '/api/public/mailbox-return': typeof ApiPublicMailboxReturnRoute
   '/_authenticated/claims/': typeof AuthenticatedClaimsIndexRoute
   '/_authenticated/hospitals/': typeof AuthenticatedHospitalsIndexRoute
   '/_authenticated/payers/$kind/$payerId': typeof AuthenticatedPayersKindPayerIdRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/work-queue'
     | '/claims/$claimId'
     | '/hospitals/$hospitalId'
+    | '/api/public/mailbox-return'
     | '/claims/'
     | '/hospitals/'
     | '/payers/$kind/$payerId'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/work-queue'
     | '/claims/$claimId'
     | '/hospitals/$hospitalId'
+    | '/api/public/mailbox-return'
     | '/claims'
     | '/hospitals'
     | '/payers/$kind/$payerId'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/_authenticated/work-queue'
     | '/_authenticated/claims/$claimId'
     | '/_authenticated/hospitals/$hospitalId'
+    | '/api/public/mailbox-return'
     | '/_authenticated/claims/'
     | '/_authenticated/hospitals/'
     | '/_authenticated/payers/$kind/$payerId'
@@ -434,6 +446,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicMailboxReturnRoute: typeof ApiPublicMailboxReturnRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -662,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHospitalsHospitalIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/mailbox-return': {
+      id: '/api/public/mailbox-return'
+      path: '/api/public/mailbox-return'
+      fullPath: '/api/public/mailbox-return'
+      preLoaderRoute: typeof ApiPublicMailboxReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/payers/$kind/$payerId': {
       id: '/_authenticated/payers/$kind/$payerId'
       path: '/$kind/$payerId'
@@ -754,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicMailboxReturnRoute: ApiPublicMailboxReturnRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

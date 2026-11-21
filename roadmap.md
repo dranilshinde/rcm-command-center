@@ -7,5 +7,6 @@
 - [ ] E: reconciliation split matching (one credit → many claims)
 - [ ] F: management dashboard / MIS + email alerts
 - [ ] G: menu by eight stages, merge admin pages, security gaps
-- [ ] Email intake: separate hospital-authorised Gmail and Outlook connections (waiting for provider client setup)
+- [x] Email intake: hospital admin connection options + secure hospital-scoped OAuth storage
+- [ ] Email intake: activate separate hospital-authorised Gmail and Outlook connections (waiting for provider client setup)
 - [ ] Email intake: hospital-scoped inbox, exact claim matching and manual confirmation; automation after verification

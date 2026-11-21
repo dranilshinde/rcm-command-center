@@ -15,15 +15,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { hospitalDetailQuery, sessionQuery } from "@/lib/queries";
 import { EditBranchButton, EditDepartmentButton, EditHospitalButton, GoLiveReviewPanel, HospitalAdminsPanel } from "@/components/rcm/setup-editors";
 import { createBranch, createDepartment, createTeam, setOnboardingStepStatus } from "@/lib/rcm.functions";
+import { hospitalMailboxesQuery } from "@/lib/mailbox-queries";
+import { HospitalMailboxes } from "@/components/rcm/hospital-mailboxes";
 
 export const Route = createFileRoute("/_authenticated/hospitals/$hospitalId")({
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(hospitalDetailQuery(params.hospitalId)),
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(hospitalDetailQuery(params.hospitalId)),
+      context.queryClient.ensureQueryData(hospitalMailboxesQuery(params.hospitalId)),
+    ]);
+  },
   head: () => ({
     meta: [
       { title: "Hospital setup — RCM Buddy" },
       { name: "description", content: "Branches, departments, teams and onboarding progress for a hospital." },
       { property: "og:title", content: "Hospital setup — RCM Buddy" },
       { property: "og:description", content: "Branches, departments, teams and onboarding progress." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HospitalDetail,
@@ -75,11 +84,12 @@ function HospitalDetail() {
       </section>
 
       <Tabs defaultValue="branches" className="mt-6">
-        <TabsList>
+        <TabsList className="h-auto max-w-full flex-wrap justify-start">
           <TabsTrigger value="branches">Branches</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="teams">Teams</TabsTrigger>
           <TabsTrigger value="admins">Admin users</TabsTrigger>
+          <TabsTrigger value="email">Email connections</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
           <TabsTrigger value="review">Go-live review</TabsTrigger>
         </TabsList>
@@ -217,6 +227,10 @@ function HospitalDetail() {
 
         <TabsContent value="admins" className="mt-4">
           <HospitalAdminsPanel hospitalId={hospital.id} canManage={session.isSuperAdmin || session.permissions.includes("users.ASSIGN")} selfId={session.userId} />
+        </TabsContent>
+
+        <TabsContent value="email" className="mt-4">
+          <HospitalMailboxes hospitalId={hospital.id} hospitalName={hospital.name} />
         </TabsContent>
 
         <TabsContent value="review" className="mt-4">

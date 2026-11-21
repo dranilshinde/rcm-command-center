@@ -220,6 +220,56 @@ export type Database = {
           },
         ]
       }
+      app_user_connections: {
+        Row: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at: string
+          email_address: string
+          hospital_id: string
+          id: string
+          status: string
+          updated_at: string
+          updated_by: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at?: string
+          email_address: string
+          hospital_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          updated_by: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          connection_key_ciphertext?: string
+          connector_id?: string
+          created_at?: string
+          email_address?: string
+          hospital_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_user_connections_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1635,6 +1685,44 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mailbox_oauth_intents: {
+        Row: {
+          connector_id: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          hospital_id: string
+          nonce_hash: string
+          user_id: string
+        }
+        Insert: {
+          connector_id: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          hospital_id: string
+          nonce_hash: string
+          user_id: string
+        }
+        Update: {
+          connector_id?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          hospital_id?: string
+          nonce_hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mailbox_oauth_intents_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
         ]
