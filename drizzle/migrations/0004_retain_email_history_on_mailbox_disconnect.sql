@@ -1,0 +1,2 @@
+ALTER TABLE public.inbound_emails DROP CONSTRAINT inbound_emails_mailbox_connection_id_fkey;
+COMMENT ON COLUMN public.inbound_emails.mailbox_connection_id IS 'Immutable historical connection UUID, validated by guard_inbound_email_source on insert; intentionally no FK so revoking and deleting credentials preserves email history.';

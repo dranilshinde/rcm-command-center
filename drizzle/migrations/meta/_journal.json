@@ -22,6 +22,27 @@
       "when": 1795273032613,
       "tag": "0002_lock_mailbox_storage_and_binding",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795347251924,
+      "tag": "0003_hospital_email_review_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795347393689,
+      "tag": "0004_retain_email_history_on_mailbox_disconnect",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795347483453,
+      "tag": "0005_restrict_email_queue_privileges",
+      "breakpoints": true
     }
   ]
 }

@@ -1195,6 +1195,182 @@ export type Database = {
           },
         ]
       }
+      email_claim_matches: {
+        Row: {
+          claim_id: string
+          created_at: string
+          email_id: string
+          hospital_id: string
+          id: string
+          identifier_type: string
+          identifier_value: string
+          match_method: string
+          organization_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          email_id: string
+          hospital_id: string
+          id?: string
+          identifier_type: string
+          identifier_value: string
+          match_method?: string
+          organization_id: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          email_id?: string
+          hospital_id?: string
+          id?: string
+          identifier_type?: string
+          identifier_value?: string
+          match_method?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_claim_matches_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_claim_matches_email_id_hospital_id_organization_id_fkey"
+            columns: ["email_id", "hospital_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "inbound_emails"
+            referencedColumns: ["id", "hospital_id", "organization_id"]
+          },
+          {
+            foreignKeyName: "email_claim_matches_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_claim_matches_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_parsed_events: {
+        Row: {
+          applied_at: string | null
+          claim_id: string | null
+          created_at: string
+          email_id: string
+          event_key: string
+          event_type: string
+          evidence_text: string
+          hospital_id: string
+          id: string
+          match_id: string | null
+          organization_id: string
+          parser_version: string
+          proposed_changes: Json
+          review_note: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string | null
+          claim_id?: string | null
+          created_at?: string
+          email_id: string
+          event_key?: string
+          event_type?: string
+          evidence_text?: string
+          hospital_id: string
+          id?: string
+          match_id?: string | null
+          organization_id: string
+          parser_version?: string
+          proposed_changes?: Json
+          review_note?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string | null
+          claim_id?: string | null
+          created_at?: string
+          email_id?: string
+          event_key?: string
+          event_type?: string
+          evidence_text?: string
+          hospital_id?: string
+          id?: string
+          match_id?: string | null
+          organization_id?: string
+          parser_version?: string
+          proposed_changes?: Json
+          review_note?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_parsed_events_email_id_hospital_id_organization_id_fkey"
+            columns: ["email_id", "hospital_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "inbound_emails"
+            referencedColumns: ["id", "hospital_id", "organization_id"]
+          },
+          {
+            foreignKeyName: "email_parsed_events_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_parsed_events_match_id_email_id_claim_id_hospital_id_fkey"
+            columns: [
+              "match_id",
+              "email_id",
+              "claim_id",
+              "hospital_id",
+              "organization_id",
+            ]
+            isOneToOne: false
+            referencedRelation: "email_claim_matches"
+            referencedColumns: [
+              "id",
+              "email_id",
+              "claim_id",
+              "hospital_id",
+              "organization_id",
+            ]
+          },
+          {
+            foreignKeyName: "email_parsed_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_parsed_events_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engine_runs: {
         Row: {
           finished_at: string | null
@@ -1611,6 +1787,160 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbound_email_attachments: {
+        Row: {
+          created_at: string
+          email_id: string
+          file_name: string
+          hospital_id: string
+          id: string
+          mime_type: string
+          organization_id: string
+          provider_attachment_id: string
+          sha256: string | null
+          size_bytes: number
+          storage_bucket: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          email_id: string
+          file_name: string
+          hospital_id: string
+          id?: string
+          mime_type: string
+          organization_id: string
+          provider_attachment_id: string
+          sha256?: string | null
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          email_id?: string
+          file_name?: string
+          hospital_id?: string
+          id?: string
+          mime_type?: string
+          organization_id?: string
+          provider_attachment_id?: string
+          sha256?: string | null
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbound_email_attachments_email_id_hospital_id_organizatio_fkey"
+            columns: ["email_id", "hospital_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "inbound_emails"
+            referencedColumns: ["id", "hospital_id", "organization_id"]
+          },
+          {
+            foreignKeyName: "inbound_email_attachments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_email_attachments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbound_emails: {
+        Row: {
+          body_html: string | null
+          body_text: string
+          cc_addresses: string[]
+          created_at: string
+          hospital_id: string
+          id: string
+          internet_message_id: string | null
+          mailbox_connection_id: string
+          organization_id: string
+          parsed_at: string | null
+          processing_error: string | null
+          processing_status: string
+          provider: string
+          provider_message_id: string
+          received_at: string
+          sender_email: string
+          sender_name: string | null
+          subject: string
+          thread_id: string | null
+          to_addresses: string[]
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string | null
+          body_text?: string
+          cc_addresses?: string[]
+          created_at?: string
+          hospital_id: string
+          id?: string
+          internet_message_id?: string | null
+          mailbox_connection_id: string
+          organization_id: string
+          parsed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          provider: string
+          provider_message_id: string
+          received_at: string
+          sender_email: string
+          sender_name?: string | null
+          subject?: string
+          thread_id?: string | null
+          to_addresses?: string[]
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string | null
+          body_text?: string
+          cc_addresses?: string[]
+          created_at?: string
+          hospital_id?: string
+          id?: string
+          internet_message_id?: string | null
+          mailbox_connection_id?: string
+          organization_id?: string
+          parsed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          provider?: string
+          provider_message_id?: string
+          received_at?: string
+          sender_email?: string
+          sender_name?: string | null
+          subject?: string
+          thread_id?: string | null
+          to_addresses?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbound_emails_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_emails_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3202,6 +3532,18 @@ export type Database = {
       claim_outstanding: {
         Args: { _approved: number; _settled: number; _tds: number }
         Returns: number
+      }
+      email_exact_claim_candidates: {
+        Args: { _hospital: string; _numbers: string[] }
+        Returns: {
+          claim_id: string
+          identifier_type: string
+          identifier_value: string
+        }[]
+      }
+      email_queue_access: {
+        Args: { _action: string; _hospital: string }
+        Returns: boolean
       }
       has_permission: {
         Args: { _action: string; _module: string; _user_id: string }

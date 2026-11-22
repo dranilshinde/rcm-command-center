@@ -9,4 +9,5 @@
 - [ ] G: menu by eight stages, merge admin pages, security gaps
 - [x] Email intake: hospital admin connection options + secure hospital-scoped OAuth storage
 - [ ] Email intake: activate separate hospital-authorised Gmail and Outlook connections (waiting for provider client setup)
-- [ ] Email intake: hospital-scoped inbox, exact claim matching and manual confirmation; automation after verification
+- [x] Email intake Phase 1: hospital-scoped message, exact-match, proposed-event and private attachment foundation; verified isolation and confirmation guards
+- [ ] Email intake later phases: mailbox ingestion, review screen and confirmed claim updates; automation after verification
