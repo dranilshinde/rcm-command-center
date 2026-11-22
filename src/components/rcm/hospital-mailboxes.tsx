@@ -93,10 +93,17 @@ export function HospitalMailboxes({ hospitalId, hospitalName }: { hospitalId: st
   const pending = !data.configured.google_mail && !data.configured.microsoft_outlook;
   return <section aria-label="Hospital email connections" className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-      <div><h2 className="text-base font-semibold">Hospital email connections</h2><p className="mt-1 text-sm text-muted-foreground">{hospitalName}</p></div>
+      <div><h2 className="text-base font-semibold">Connect your hospital email</h2><p className="mt-1 text-sm text-muted-foreground">Takes about a minute · {hospitalName}</p></div>
       <div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-positive" />Hospital-only access</div>
     </div>
-    {pending ? <div role="status" className="border-l-2 border-warning bg-warning/10 px-4 py-3 text-sm"><p className="font-medium">RCM Buddy activation pending</p><p className="mt-1 text-muted-foreground">Gmail and Outlook connections are awaiting platform activation. No mailbox is connected or being read.</p></div> : null}
+    <ol aria-label="How to connect" className="grid gap-3 sm:grid-cols-3">
+      {[
+        ["1", "Pick your email", "Choose Outlook or Gmail — whichever your TPA desk uses."],
+        ["2", "Sign in once", "A small window opens. Sign in with your hospital email and press Allow."],
+        ["3", "You're done", "You'll see “Connected” here. No passwords are stored or shown."],
+      ].map(([n, title, body]) => <li key={n} className="flex gap-3 rounded-lg border border-border bg-card p-4"><span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{n}</span><div><p className="text-sm font-medium">{title}</p><p className="mt-1 text-xs text-muted-foreground">{body}</p></div></li>)}
+    </ol>
+    {pending ? <div role="status" className="border-l-2 border-warning bg-warning/10 px-4 py-3 text-sm"><p className="font-medium">Almost ready</p><p className="mt-1 text-muted-foreground">The Connect buttons will switch on once RCM Buddy finishes its one-time email setup. Nothing for you to do yet — no mailbox is connected or being read.</p></div> : null}
     {confirmation ? <p role="status" className="flex items-center gap-2 text-sm text-positive"><ShieldCheck className="size-4" />{confirmation}</p> : null}
     <div className="grid gap-4 lg:grid-cols-2">
       {(["microsoft_outlook", "google_mail"] as const).map((provider) => {
@@ -106,7 +113,7 @@ export function HospitalMailboxes({ hospitalId, hospitalName }: { hospitalId: st
         const reconnect = connection?.status === "reconnect_required";
         return <article key={provider} className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-3"><div className="flex items-center gap-3"><Mail className="size-5 text-primary" /><h3 className="font-semibold">{MAILBOX_PROVIDERS[provider].label}</h3></div><Badge variant="outline" className={reconnect ? "border-warning text-warning-foreground" : "text-muted-foreground"}>{reconnect ? "Reconnect required" : connection ? "Connected" : "Not connected"}</Badge></div>
-          <div className="my-5 min-h-16 text-sm"><p className="break-all font-medium">{connection?.email ?? "No hospital mailbox connected"}</p><p className="mt-2 text-xs text-muted-foreground">{connection?.verifiedAt ? `Verified ${new Date(connection.verifiedAt).toLocaleString("en-IN")}` : ready ? "Awaiting hospital authorisation" : "Awaiting RCM Buddy activation"}</p></div>
+          <div className="my-5 min-h-16 text-sm"><p className="break-all font-medium">{connection?.email ?? "No hospital mailbox connected"}</p><p className="mt-2 text-xs text-muted-foreground">{connection?.verifiedAt ? `Verified ${new Date(connection.verifiedAt).toLocaleString("en-IN")}` : ready ? "Ready — press Connect and sign in" : "Will be available soon"}</p></div>
           <div className="mt-auto flex flex-wrap items-center gap-2">
             {(!connection || connection.canReconnect) ? <Button size="sm" onClick={() => void connect(provider)} disabled={!ready || busy !== null}>{working ? <LoaderCircle className="animate-spin" /> : <Link2 />}{connection ? "Reconnect" : `Connect ${provider === "google_mail" ? "Gmail" : "Outlook"}`}</Button> : <span className="text-xs text-muted-foreground">The authorising administrator must reconnect this mailbox.</span>}
             {connection ? <><Button variant="outline" size="sm" onClick={() => void run(provider, "verify")} disabled={!ready || busy !== null}><RefreshCw />Verify access</Button><AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="sm" disabled={!ready || busy !== null}><Unplug />Disconnect</Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Disconnect this hospital mailbox?</AlertDialogTitle><AlertDialogDescription>RCM Buddy will revoke its connection to {connection.email}. Claims and existing records will not be changed.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Keep connected</AlertDialogCancel><AlertDialogAction onClick={() => void run(provider, "disconnect")}>Disconnect</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog></> : null}

@@ -89,7 +89,7 @@ function HospitalDetail() {
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="teams">Teams</TabsTrigger>
           <TabsTrigger value="admins">Admin users</TabsTrigger>
-          <TabsTrigger value="email">Email connections</TabsTrigger>
+          <TabsTrigger value="email">Connect email</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
           <TabsTrigger value="review">Go-live review</TabsTrigger>
         </TabsList>
